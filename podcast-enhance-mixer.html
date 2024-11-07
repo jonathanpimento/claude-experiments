@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Comparison Tool</title>
+    <style>
+        :root {
+            --primary-color: #4F46E5;
+            --success-color: #10B981;
+            --info-color: #0EA5E9;
+            --background-color: #F9FAFB;
+            --card-background: #FFFFFF;
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+            --border-radius: 12px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+        
+        
+        .container {
+            display: flex;
+            gap: 32px;
+            margin-top: 32px;
+        }
+        
+        .column {
+            flex: 1;
+            background: var(--card-background);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--text-primary);
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            font-weight: 700;
+        }
+        
+        h2 {
+            color: var(--text-primary);
+            margin-top: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .upload-area {
+            border: 2px dashed #E5E7EB;
+            border-radius: var(--border-radius);
+            padding: 32px;
+            text-align: center;
+            margin-top: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: #F9FAFB;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background-color: #F3F4F6;
+        }
+        
+        .preview {
+            margin-top: 32px;
+        }
+        
+        audio {
+            width: 100%;
+            margin-top: 16px;
+            margin-bottom: 16px;
+            border-radius: 8px;
+        }
+        
+        .file-info {
+            margin-top: 16px;
+            font-size: 0.9rem;
+            color: #ffffff;
+            padding: 20px;
+            background-color:#5046e5;
+            border-radius: 6px;
+        }
+
+        .mix-button {
+            display: block;
+            width: 200px;
+            margin: 32px auto;
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            letter-spacing: 0.025em;
+        }
+
+        .mix-button:disabled {
+            background-color: #E5E7EB;
+            cursor: not-allowed;
+        }
+
+        .mix-button:hover:not(:disabled) {
+            background-color: #4338CA;
+            transform: translateY(-1px);
+        }
+
+        .mixed-section {
+            margin-top: 40px;
+            background: var(--card-background);
+            padding: 32px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+        }
+
+        .mixed-preview {
+            position: relative;
+            padding-top: 48px;
+            margin-top: 24px;
+        }
+
+        .segment-overlay {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 16px;
+            font-weight: 600;
+            color: white;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-width: 160px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .original-segment {
+            background-color: var(--success-color);
+        }
+
+        .enhanced-segment {
+            background-color: #4f46e5;
+        }
+
+        .timestamp {
+            text-align: center;
+            margin-top: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Modern audio player styling */
+        audio::-webkit-media-controls-panel {
+            background-color: #F3F4F6;
+        }
+
+        audio::-webkit-media-controls-time-remaining-display,
+        audio::-webkit-media-controls-current-time-display {
+            color: var(--text-primary);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            body {
+                padding: 16px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* Animation for segment overlay transitions */
+        .segment-overlay {
+            transition: background-color 0.3s ease;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -10px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+
+        /* Custom upload area message styling */
+        .upload-area p {
+            color: var(--text-secondary);
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .upload-area:hover p {
+            color: var(--primary-color);
+        }
+         .download-section {
+            margin-top: 24px;
+            text-align: center;
+        }
+
+        .download-button {
+            background-color: var(--success-color);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .download-button:hover {
+            background-color: #059669;
+            transform: translateY(-1px);
+        }
+
+        .download-button:disabled {
+            background-color: #E5E7EB;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .download-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            max-width: 300px;
+            height: 4px;
+            background-color: #E5E7EB;
+            border-radius: 2px;
+            margin: 16px auto;
+            display: none;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--success-color);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        #video-preview {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            border-radius: 8px;
+            display: none;
+        }
+
+        canvas {
+            display: none;}
+        
+        .project-description{
+   margin-left: 20%;
+    margin-right: 20%;
+    text-align: center;
+    margin-bottom: 5%;
+    background-color: #ececec;
+    padding: 2%;
+    border-radius: 12px;
+        }
+        .projects-button a{
+color: #909066;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 14px;
+    background-color: #000000;
+    padding: 12px;
+    border-radius: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <div class="projects-button"><a href="index.html">All Projects</a></div>
+    </div>
+    <h1>Enhance Speech Mixer</h1>
+     <p class="project-description">Generate a video and audio file that mixes five seconds of alternating segments of the original and enhanced audio, making it easy to listen and evaluate model quality.</p>
+    
+    <div class="container">
+        <div class="column">
+            <h2>Upload Original Audio</h2>
+            <div class="upload-area" id="original-upload">
+                <p>Drop your file here or click to select</p>
+                <input type="file" id="original-input" accept="audio/*" style="display: none">
+            </div>
+            <div class="preview" id="original-preview"></div>
+            <div class="file-info" id="original-info"></div>
+        </div>
+        
+        <div class="column">
+            <h2>Upload Enhanced Audio</h2>
+            <div class="upload-area" id="enhanced-upload">
+                <p>Drop your file here or click to select</p>
+                <input type="file" id="enhanced-input" accept="audio/*" style="display: none">
+            </div>
+            <div class="preview" id="enhanced-preview"></div>
+            <div class="file-info" id="enhanced-info"></div>
+        </div>
+    </div>
+
+    <button id="mix-button" class="mix-button" disabled>Mix Audio</button>
+
+   <div class="mixed-section">
+        <h2>Combined Audio Tracks</h2>
+            <p class="project-description">The combined audio file will display a text overlay to indicate when the original and enhanced segments are playing in addition to the duration where you can see it switch every 5 secs. Click create video to save this as a video with the combined audio and text overlays. </p>
+        <div class="mixed-preview" id="mixed-preview">
+            <div class="segment-overlay" id="segment-overlay" style="display: none;"></div>
+                        <div class="timestamp" id="timestamp"></div>
+            <audio id="mixed-audio" controls></audio>
+
+        </div>
+        
+        <div class="download-section">
+            <canvas id="videoCanvas" width="1280" height="720"></canvas>
+            <video id="video-preview" controls></video>
+            <div class="progress-bar" id="progress-bar">
+                <div class="progress-bar-fill" id="progress-bar-fill"></div>
+            </div>
+            <button id="download-button" class="download-button" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                Generate Video
+            </button>
+        </div>
+    </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ffmpeg.js/0.10.0/ffmpeg.min.js"></script>
+<script>
+let originalAudio = null;
+let enhancedAudio = null;
+const mixButton = document.getElementById('mix-button');
+const segmentOverlay = document.getElementById('segment-overlay');
+const timestampDiv = document.getElementById('timestamp');
+const downloadButton = document.getElementById('download-button');
+const progressBar = document.getElementById('progress-bar');
+const progressBarFill = document.getElementById('progress-bar-fill');
+const videoPreview = document.getElementById('video-preview');
+const canvas = document.getElementById('videoCanvas');
+const ctx = canvas.getContext('2d');
+const SEGMENT_DURATION = 5; // seconds
+
+function setupUpload(inputId, uploadAreaId, previewId, infoId, isOriginal) {
+    const input = document.getElementById(inputId);
+    const uploadArea = document.getElementById(uploadAreaId);
+    const preview = document.getElementById(previewId);
+    const info = document.getElementById(infoId);
+    
+    uploadArea.addEventListener('click', () => input.click());
+    
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#666';
+        uploadArea.style.backgroundColor = '#f8f8f8';
+    });
+    
+    uploadArea.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#ccc';
+        uploadArea.style.backgroundColor = '';
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#ccc';
+        uploadArea.style.backgroundColor = '';
+        handleFile(e.dataTransfer.files[0]);
+    });
+    
+    input.addEventListener('change', (e) => {
+        handleFile(e.target.files[0]);
+    });
+    
+    function handleFile(file) {
+        if (!file) return;
+        
+        const audioElement = document.createElement('audio');
+        audioElement.controls = true;
+        audioElement.src = URL.createObjectURL(file);
+        
+        if (isOriginal) {
+            originalAudio = audioElement;
+        } else {
+            enhancedAudio = audioElement;
+        }
+        
+        preview.innerHTML = '';
+        preview.appendChild(audioElement);
+        
+        const size = (file.size / (1024 * 1024)).toFixed(2);
+        info.textContent = `File: ${file.name} (${size} MB)`;
+        
+        checkEnableMixButton();
+    }
+}
+
+function checkEnableMixButton() {
+    mixButton.disabled = !(originalAudio && enhancedAudio);
+}
+
+async function createMixedAudio() {
+    const audioContext = new AudioContext();
+    const originalBuffer = await fetchAudioBuffer(originalAudio.src, audioContext);
+    const enhancedBuffer = await fetchAudioBuffer(enhancedAudio.src, audioContext);
+
+    const duration = Math.min(originalBuffer.duration, enhancedBuffer.duration);
+    const numSegments = Math.floor(duration / SEGMENT_DURATION);
+    const finalDuration = numSegments * SEGMENT_DURATION;
+
+    const mixedBuffer = audioContext.createBuffer(
+        originalBuffer.numberOfChannels,
+        audioContext.sampleRate * finalDuration,
+        audioContext.sampleRate
+    );
+
+    for (let channel = 0; channel < mixedBuffer.numberOfChannels; channel++) {
+        const mixedData = mixedBuffer.getChannelData(channel);
+        const originalData = originalBuffer.getChannelData(channel);
+        const enhancedData = enhancedBuffer.getChannelData(channel);
+
+        for (let segment = 0; segment < numSegments; segment++) {
+            const startSample = segment * SEGMENT_DURATION * audioContext.sampleRate;
+            const endSample = (segment + 1) * SEGMENT_DURATION * audioContext.sampleRate;
+            const sourceData = segment % 2 === 0 ? originalData : enhancedData;
+
+            for (let i = startSample; i < endSample; i++) {
+                mixedData[i] = sourceData[i];
+            }
+        }
+    }
+
+    const mixedAudioData = await audioBufferToWave(mixedBuffer);
+    const mixedBlob = new Blob([mixedAudioData], { type: 'audio/wav' });
+    return URL.createObjectURL(mixedBlob);
+}
+
+async function fetchAudioBuffer(url, audioContext) {
+    const response = await fetch(url);
+    const arrayBuffer = await response.arrayBuffer();
+    return await audioContext.decodeAudioData(arrayBuffer);
+}
+
+function audioBufferToWave(audioBuffer) {
+    const numOfChan = audioBuffer.numberOfChannels;
+    const length = audioBuffer.length * numOfChan * 2;
+    const buffer = new ArrayBuffer(44 + length);
+    const view = new DataView(buffer);
+    const channels = [];
+    let sample;
+    let offset = 0;
+    let pos = 0;
+
+    // Write WAV header
+    writeString(view, 0, 'RIFF');
+    view.setUint32(4, 36 + length, true);
+    writeString(view, 8, 'WAVE');
+    writeString(view, 12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, numOfChan, true);
+    view.setUint32(24, audioBuffer.sampleRate, true);
+    view.setUint32(28, audioBuffer.sampleRate * 2 * numOfChan, true);
+    view.setUint16(32, numOfChan * 2, true);
+    view.setUint16(34, 16, true);
+    writeString(view, 36, 'data');
+    view.setUint32(40, length, true);
+
+    // Write interleaved data
+    for (let i = 0; i < audioBuffer.numberOfChannels; i++) {
+        channels.push(audioBuffer.getChannelData(i));
+    }
+
+    while (pos < audioBuffer.length) {
+        for (let i = 0; i < numOfChan; i++) {
+            sample = Math.max(-1, Math.min(1, channels[i][pos]));
+            sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0;
+            view.setInt16(44 + offset, sample, true);
+            offset += 2;
+        }
+        pos++;
+    }
+
+    return buffer;
+}
+
+function writeString(view, offset, string) {
+    for (let i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+    }
+}
+
+function drawFrame(time, duration) {
+    const width = canvas.width;
+    const height = canvas.height;
+    
+    // Clear canvas
+    ctx.fillStyle = '#575de8';
+    ctx.fillRect(0, 0, width, height);
+    
+    // Calculate which segment we're in
+    const segment = Math.floor(time / SEGMENT_DURATION);
+    const isOriginalSegment = segment % 2 === 0;
+    
+    // Draw segment text
+    ctx.fillStyle = isOriginalSegment ? '#575de8' : '#1f226d';
+    ctx.fillRect(0, 0, width, 120);
+    
+    ctx.font = 'bold 48px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    ctx.fillText(
+        isOriginalSegment ? 'Original Audio' : 'Enhanced Audio',
+        width / 2,
+        70
+    );
+    
+    // Draw timestamp
+    ctx.font = '32px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = '#fff';
+    ctx.fillText(
+        `Time: ${time.toFixed(1)}s / ${duration.toFixed(1)}s`,
+        width / 2,
+        height - 180
+    );
+    
+}
+
+async function createVideo() {
+    const mixedAudio = document.getElementById('mixed-audio');
+    if (!mixedAudio.src) return;
+
+    downloadButton.disabled = true;
+    downloadButton.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Creating Video...
+    `;
+    progressBar.style.display = 'block';
+    videoPreview.style.display = 'none';
+
+    try {
+        const duration = mixedAudio.duration;
+        const fps = 30;
+        const totalFrames = Math.ceil(duration * fps);
+        const chunks = [];
+        
+        const stream = canvas.captureStream(fps);
+        
+        // Add audio track to the stream
+        const audioContext = new AudioContext();
+        const audioSource = audioContext.createMediaElementSource(mixedAudio);
+        const audioDestination = audioContext.createMediaStreamDestination();
+        audioSource.connect(audioDestination);
+        
+        // Combine video and audio streams
+        const combinedStream = new MediaStream([
+            ...stream.getVideoTracks(),
+            ...audioDestination.stream.getAudioTracks()
+        ]);
+        
+        const mediaRecorder = new MediaRecorder(combinedStream, {
+            mimeType: 'video/webm;codecs=vp9',
+            videoBitsPerSecond: 5000000 // 5 Mbps for better quality
+        });
+
+        mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+        
+        mediaRecorder.onstop = async () => {
+            const finalVideo = new Blob(chunks, { type: 'video/webm' });
+            
+            // Create and trigger download
+            const a = document.createElement('a');
+            const url = URL.createObjectURL(finalVideo);
+            a.href = url;
+            a.download = 'mixed-audio-video.webm';
+            a.click();
+            URL.revokeObjectURL(url);
+
+            // Update video preview
+            videoPreview.src = URL.createObjectURL(finalVideo);
+            videoPreview.style.display = 'block';
+            
+            // Reset button state
+            downloadButton.disabled = false;
+            downloadButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                Create New Video
+            `;
+            
+            // Cleanup
+            audioSource.disconnect();
+            stream.getTracks().forEach(track => track.stop());
+            combinedStream.getTracks().forEach(track => track.stop());
+        };
+
+        // Start recording process
+        mediaRecorder.start();
+        
+        // Play the audio
+        mixedAudio.currentTime = 0;
+        await mixedAudio.play();
+        
+        // Generate frames while audio plays
+        for (let frame = 0; frame < totalFrames; frame++) {
+            const time = frame / fps;
+            drawFrame(time, duration);
+            progressBarFill.style.width = `${(frame / totalFrames) * 100}%`;
+            await new Promise(resolve => setTimeout(resolve, 1000 / fps));
+        }
+        
+        // Stop recording
+        mediaRecorder.stop();
+        mixedAudio.pause();
+        mixedAudio.currentTime = 0;
+
+    } catch (error) {
+        console.error('Error creating video:', error);
+        alert('Error creating video. Please try again.');
+        downloadButton.disabled = false;
+        downloadButton.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            Create Video
+        `;
+    }
+}
+
+function updateOverlay(currentTime) {
+    const segment = Math.floor(currentTime / SEGMENT_DURATION);
+    const isOriginalSegment = segment % 2 === 0;
+    
+    segmentOverlay.textContent = isOriginalSegment ? 'Original Audio' : 'Enhanced Audio';
+    segmentOverlay.className = 'segment-overlay ' + (isOriginalSegment ? 'original-segment' : 'enhanced-segment');
+    segmentOverlay.style.display = 'block';
+    
+    timestampDiv.textContent = `Time: ${currentTime.toFixed(1)}s`;
+}
+
+mixButton.addEventListener('click', async () => {
+    mixButton.disabled = true;
+    mixButton.textContent = 'Processing...';
+    
+    try {
+        const mixedAudioUrl = await createMixedAudio();
+        const mixedAudio = document.getElementById('mixed-audio');
+        mixedAudio.src = mixedAudioUrl;
+        
+        mixedAudio.addEventListener('timeupdate', () => {
+            updateOverlay(mixedAudio.currentTime);
+        });
+        
+        mixedAudio.addEventListener('ended', () => {
+            segmentOverlay.style.display = 'none';
+        });
+        
+        mixedAudio.addEventListener('pause', () => {
+            segmentOverlay.style.display = 'none';
+        });
+        
+        mixedAudio.addEventListener('play', () => {
+            updateOverlay(mixedAudio.currentTime);
+        });
+    } catch (error) {
+        console.error('Error mixing audio:', error);
+        alert('Error mixing audio. Please try again.');
+    } finally {
+        mixButton.disabled = false;
+        mixButton.textContent = 'Mix Audio';
+    }
+});
+
+const mixedAudio = document.getElementById('mixed-audio');
+mixedAudio.addEventListener('loadedmetadata', () => {
+    downloadButton.disabled = false;
+    downloadButton.onclick = createVideo;
+    downloadButton.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+        </svg>
+        Create Video
+    `;
+});
+
+setupUpload('original-input', 'original-upload', 'original-preview', 'original-info', true);
+setupUpload('enhanced-input', 'enhanced-upload', 'enhanced-preview', 'enhanced-info', false);
+    </script>
+</body>
+</html>

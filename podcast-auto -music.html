@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Audio Track Mixer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+                h1 {
+            color: #1a1a1a;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+                    text-align: center;
+                                font-family: system-ui, -apple-system, sans-serif;
+        }
+        .upload-section {
+    background: #f1f3f4;
+    padding: 5%;
+    margin-bottom: 20px;
+    border-radius: 5px;
+        }
+        .audio-input {
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #ccc;
+        }
+        #status {
+            margin: 10px 0;
+            color: #666;
+        }
+        .progress {
+            width: 100%;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #007bff;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+                .project-description{
+   margin-left: 20%;
+    margin-right: 20%;
+    text-align: center;
+    margin-bottom: 5%;
+    background-color: #ececec;
+    padding: 2%;
+    border-radius: 12px;
+                                font-family: system-ui, -apple-system, sans-serif;
+                    line-height: 1.5;
+        }
+        .projects-button a{
+color: #909066;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 14px;
+    background-color: #000000;
+    padding: 12px;
+    border-radius: 30px;
+        }
+        .rail{
+                padding: 10px 0 10px 0;
+    font-family: system-ui;
+    color: #000;
+                margin-bottom: 10px;
+        }
+        h3{
+                margin: 0;
+    line-height: 0px;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <div class="projects-button"><a href="index.html">All Projects</a></div>
+    </div>
+    <h1>Podcast Creator</h1>
+         <p class="project-description">Generate a Podcast in a single click by uploading a recording with supporting music that is automatically added  as a intro, outro and transition with fade in and outs. Transitions are added during silence or pause.</p>
+    <div class="upload-section">
+        <div class="audio-input">
+            <label><h3>Speech Recording:</h3></label><br>
+            <input type="file" id="recordingInput" class="rail" accept="audio/*">
+            <audio id="recordingPreview" controls style="display: none"></audio>
+        </div>
+        
+        <div class="audio-input">
+            <label><h3>Intro Music:</h3></label><br>
+            <input type="file" id="introInput" class="rail" accept="audio/*">
+            <audio id="introPreview" controls style="display: none"></audio>
+        </div>
+        
+        <div class="audio-input">
+            <label><h3>Transition Music:</h3></label><br>
+            <input type="file" id="transitionInput" class="rail" accept="audio/*">
+            <audio id="transitionPreview" controls style="display: none"></audio>
+        </div>
+        
+        <div class="audio-input">
+            <label><h3>Outro Music:</h3></label><br>
+            <input type="file" id="outroInput" class="rail" accept="audio/*">
+            <audio id="outroPreview" controls style="display: none"></audio>
+        </div>
+    </div>
+
+    <button id="mixButton" disabled>Mix Tracks</button>
+    <div class="progress">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div id="status">Upload all tracks to begin mixing</div>
+
+    <div id="result" style="display: none">
+        <h2>Final Mix</h2>
+        <audio id="finalMix" controls></audio>
+        <br>
+        <button id="downloadButton">Download Mix</button>
+    </div>
+
+    <script>
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+const audioFiles = {
+    recording: null,
+    intro: null,
+    transition: null,
+    outro: null
+};
+let audioBuffers = {};
+
+// Helper function to convert mono to stereo buffer
+function monoToStereo(monoBuffer) {
+    const stereoBuffer = audioContext.createBuffer(
+        2,
+        monoBuffer.length,
+        monoBuffer.sampleRate
+    );
+    
+    // Copy the mono channel to both stereo channels
+    const monoData = monoBuffer.getChannelData(0);
+    const leftChannel = stereoBuffer.getChannelData(0);
+    const rightChannel = stereoBuffer.getChannelData(1);
+    
+    for (let i = 0; i < monoBuffer.length; i++) {
+        leftChannel[i] = monoData[i];
+        rightChannel[i] = monoData[i];
+    }
+    
+    return stereoBuffer;
+}
+
+// Helper function to ensure stereo format
+function ensureStereo(buffer) {
+    if (buffer.numberOfChannels === 1) {
+        return monoToStereo(buffer);
+    }
+    return buffer;
+}
+
+// Handle file uploads and preview
+['recording', 'intro', 'transition', 'outro'].forEach(type => {
+    const input = document.getElementById(`${type}Input`);
+    const preview = document.getElementById(`${type}Preview`);
+    
+    input.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            audioFiles[type] = file;
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = 'block';
+            
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const decodedBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                audioBuffers[type] = ensureStereo(decodedBuffer);
+                
+                checkAllFilesUploaded();
+            } catch (error) {
+                console.error(`Error processing ${type} audio:`, error);
+                status.textContent = `Error processing ${type} audio: ${error.message}`;
+            }
+        }
+    });
+});
+
+function checkAllFilesUploaded() {
+    const allUploaded = Object.values(audioFiles).every(file => file !== null);
+    document.getElementById('mixButton').disabled = !allUploaded;
+    document.getElementById('status').textContent = allUploaded ? 
+        'Ready to mix!' : 'Upload all tracks to begin mixing';
+}
+
+async function detectSilence(audioBuffer, threshold = 0.01, minSilenceDuration = 0.5) {
+    // Use average of both channels for silence detection in stereo
+    const leftChannel = audioBuffer.getChannelData(0);
+    const rightChannel = audioBuffer.getChannelData(1);
+    const sampleRate = audioBuffer.sampleRate;
+    const silencePoints = [];
+    let silenceStart = null;
+    
+    for (let i = 0; i < leftChannel.length; i++) {
+        // Calculate RMS of both channels
+        const leftAmp = Math.abs(leftChannel[i]);
+        const rightAmp = Math.abs(rightChannel[i]);
+        const amplitude = (leftAmp + rightAmp) / 2;
+        
+        if (amplitude < threshold) {
+            if (silenceStart === null) {
+                silenceStart = i / sampleRate;
+            }
+        } else if (silenceStart !== null) {
+            const silenceDuration = (i / sampleRate) - silenceStart;
+            if (silenceDuration >= minSilenceDuration) {
+                silencePoints.push({
+                    start: silenceStart,
+                    end: i / sampleRate,
+                    duration: silenceDuration
+                });
+            }
+            silenceStart = null;
+        }
+    }
+    
+    return silencePoints;
+}
+
+async function createFinalMix() {
+    const mixButton = document.getElementById('mixButton');
+    const progressBar = document.getElementById('progressBar');
+    const status = document.getElementById('status');
+    
+    mixButton.disabled = true;
+    status.textContent = 'Mixing in progress...';
+
+    try {
+        const silencePoints = await detectSilence(audioBuffers.recording);
+        
+        const totalDuration = audioBuffers.recording.duration + 
+            audioBuffers.intro.duration + audioBuffers.outro.duration;
+        
+        const finalBuffer = audioContext.createBuffer(
+            2,
+            audioContext.sampleRate * totalDuration,
+            audioContext.sampleRate
+        );
+        
+        // Mix intro with fadeout
+        for (let channel = 0; channel < 2; channel++) {
+            const finalData = finalBuffer.getChannelData(channel);
+            const introData = audioBuffers.intro.getChannelData(channel);
+            
+            const fadeOutStart = audioBuffers.intro.length - (audioContext.sampleRate * 2);
+            for (let i = 0; i < audioBuffers.intro.length; i++) {
+                let gain = 1;
+                if (i > fadeOutStart) {
+                    gain = 1 - ((i - fadeOutStart) / (audioBuffers.intro.length - fadeOutStart));
+                }
+                finalData[i] = introData[i] * gain;
+            }
+        }
+        
+        progressBar.style.width = '33%';
+        
+        // Mix recording and transitions
+        const recordingOffset = audioBuffers.intro.length;
+        for (let channel = 0; channel < 2; channel++) {
+            const finalData = finalBuffer.getChannelData(channel);
+            const recordingData = audioBuffers.recording.getChannelData(channel);
+            
+            for (let i = 0; i < audioBuffers.recording.length; i++) {
+                finalData[i + recordingOffset] = recordingData[i];
+            }
+            
+            if (silencePoints.length > 0) {
+                const transitionData = audioBuffers.transition.getChannelData(channel);
+                silencePoints.forEach(point => {
+                    const startSample = Math.floor(point.start * audioContext.sampleRate) + recordingOffset;
+                    const fadeInSamples = audioContext.sampleRate * 0.5;
+                    const fadeOutSamples = audioContext.sampleRate * 0.5;
+                    
+                    for (let i = 0; i < transitionData.length; i++) {
+                        let gain = 1;
+                        if (i < fadeInSamples) {
+                            gain = i / fadeInSamples;
+                        } else if (i > transitionData.length - fadeOutSamples) {
+                            gain = (transitionData.length - i) / fadeOutSamples;
+                        }
+                        finalData[startSample + i] += transitionData[i] * gain * 0.3;
+                    }
+                });
+            }
+        }
+        
+        progressBar.style.width = '66%';
+        
+        // Mix outro with fadein
+        const outroOffset = recordingOffset + audioBuffers.recording.length;
+        for (let channel = 0; channel < 2; channel++) {
+            const finalData = finalBuffer.getChannelData(channel);
+            const outroData = audioBuffers.outro.getChannelData(channel);
+            
+            const fadeInSamples = audioContext.sampleRate * 2;
+            for (let i = 0; i < audioBuffers.outro.length; i++) {
+                let gain = 1;
+                if (i < fadeInSamples) {
+                    gain = i / fadeInSamples;
+                }
+                finalData[i + outroOffset] = outroData[i] * gain;
+            }
+        }
+        
+        progressBar.style.width = '100%';
+        
+        const finalAudio = document.getElementById('finalMix');
+        const blob = await audioBufferToWav(finalBuffer);
+        finalAudio.src = URL.createObjectURL(blob);
+        
+        document.getElementById('result').style.display = 'block';
+        status.textContent = 'Mixing complete!';
+        
+        const downloadButton = document.getElementById('downloadButton');
+        downloadButton.onclick = () => {
+            const a = document.createElement('a');
+            a.href = finalAudio.src;
+            a.download = 'mixed-audio.wav';
+            a.click();
+        };
+        
+    } catch (error) {
+        console.error('Mixing error:', error);
+        status.textContent = 'Error during mixing: ' + error.message;
+    } finally {
+        mixButton.disabled = false;
+    }
+}
+
+function audioBufferToWav(buffer) {
+    const numChannels = buffer.numberOfChannels;
+    const sampleRate = buffer.sampleRate;
+    const format = 1; // PCM
+    const bitDepth = 16;
+    
+    const bytesPerSample = bitDepth / 8;
+    const blockAlign = numChannels * bytesPerSample;
+    
+    const wav = new ArrayBuffer(44 + buffer.length * blockAlign);
+    const view = new DataView(wav);
+    
+    // Write WAV header
+    const writeString = (view, offset, string) => {
+        for (let i = 0; i < string.length; i++) {
+            view.setUint8(offset + i, string.charCodeAt(i));
+        }
+    };
+    
+    writeString(view, 0, 'RIFF');
+    view.setUint32(4, 36 + buffer.length * blockAlign, true);
+    writeString(view, 8, 'WAVE');
+    writeString(view, 12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, format, true);
+    view.setUint16(22, numChannels, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * blockAlign, true);
+    view.setUint16(32, blockAlign, true);
+    view.setUint16(34, bitDepth, true);
+    writeString(view, 36, 'data');
+    view.setUint32(40, buffer.length * blockAlign, true);
+    
+    // Write audio data
+    const offset = 44;
+    for (let i = 0; i < buffer.length; i++) {
+        for (let channel = 0; channel < numChannels; channel++) {
+            const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
+            const int = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+            view.setInt16(offset + (i * blockAlign) + (channel * bytesPerSample), int, true);
+        }
+    }
+    
+    return new Blob([wav], { type: 'audio/wav' });
+}
+
+document.getElementById('mixButton').addEventListener('click', createFinalMix);
+    </script>
+</body>
+</html>

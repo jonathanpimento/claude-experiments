@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Text Comparison Tool</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/2.0.2/diff.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            padding: 2rem;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #2d3748;
+        }
+
+        .upload-section {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+
+        .upload-container {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .file-input-container {
+            position: relative;
+            width: 100%;
+            height: 120px;
+            margin-bottom: 1rem;
+        }
+
+        .file-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .file-input-label {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #f7fafc;
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-container:hover .file-input-label {
+            border-color: #4299e1;
+            background-color: #ebf8ff;
+        }
+
+        .file-input-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #4a5568;
+        }
+
+        .compare-button {
+            display: block;
+            margin: 2rem auto;
+            padding: 0.75rem 2rem;
+            background-color: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+
+        .compare-button:hover {
+            background-color: #3182ce;
+        }
+
+        .compare-button:disabled {
+            background-color: #cbd5e0;
+            cursor: not-allowed;
+        }
+
+        .content-section {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .content-container {
+            flex: 1;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background-color: #fff;
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+    
+        }
+
+        .diff-add {
+            background-color: #c6f6d5;
+            padding: 2px 0;
+        }
+
+        .diff-remove {
+            background-color: #fed7d7;
+            padding: 2px 0;
+            text-decoration: line-through;
+        }
+
+        .file-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+        }
+
+        .loading {
+            text-align: center;
+            color: #4a5568;
+            font-style: italic;
+        }
+
+        .insights-panel {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border: 1px solid #e2e8f0;
+        }
+
+        .insights-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1rem;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .insight-item {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .insight-label {
+            font-size: 0.875rem;
+            color: #718096;
+            margin-bottom: 0.25rem;
+        }
+
+        .insight-value {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1.125rem;
+        }
+
+        #fileName1, #fileName2 {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #4a5568;
+        }
+                .project-description{
+   margin-left: 20%;
+    margin-right: 20%;
+    text-align: center;
+    margin-bottom: 5%;
+    background-color: #ececec;
+    padding: 2%;
+    border-radius: 12px;
+        }
+        .projects-button a{
+color: #909066;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 14px;
+    background-color: #000000;
+    padding: 12px;
+    border-radius: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+            <div class="nav">
+        <div class="projects-button"><a href="index.html">All Projects</a></div>
+    </div>
+        <h1> PDF Transcript Comparison</h1>
+             <p class="project-description">Compare two transcripts side by side with highlights to indicate added and deleted words. Preview a summary of changes between the 2 documents.</p>
+        <div class="upload-section">
+            <div class="upload-container">
+                <div class="file-name">File 1</div>
+                <div class="file-input-container">
+                    <input type="file" id="file1" class="file-input" accept="application/pdf">
+                    <div class="file-input-label">
+                        <div class="file-input-icon"></div>
+                        <div>Choose PDF or drag & drop</div>
+                    </div>
+                </div>
+                <div id="fileName1"></div>
+            </div>
+            <div class="upload-container">
+                <div class="file-name">File 2</div>
+                <div class="file-input-container">
+                    <input type="file" id="file2" class="file-input" accept="application/pdf">
+                    <div class="file-input-label">
+                        <div class="file-input-icon"></div>
+                        <div>Choose PDF or drag & drop</div>
+                    </div>
+                </div>
+                <div id="fileName2"></div>
+            </div>
+        </div>
+
+        <div id="insightsPanel" class="insights-panel" style="display: none;">
+            <div class="insights-title">Comparison Insights</div>
+            <div class="insights-grid">
+                <div class="insight-item">
+                    <div class="insight-label">Similarity Score</div>
+                    <div class="insight-value" id="similarityScore">-</div>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-label">Words Added</div>
+                    <div class="insight-value" id="wordsAdded">-</div>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-label">Words Removed</div>
+                    <div class="insight-value" id="wordsRemoved">-</div>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-label">Total Changes</div>
+                    <div class="insight-value" id="totalChanges">-</div>
+                </div>
+            </div>
+        </div>
+
+        <button id="compareButton" class="compare-button" disabled>Compare PDFs</button>
+
+        <div class="content-section">
+            <div class="content-container" id="content1"></div>
+            <div class="content-container" id="content2"></div>
+        </div>
+    </div>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+        let text1 = '', text2 = '';
+        const compareButton = document.getElementById('compareButton');
+        const container1 = document.getElementById('content1');
+        const container2 = document.getElementById('content2');
+
+        // Add scroll synchronization
+        let isScrolling = false;
+        
+        container1.addEventListener('scroll', () => {
+            if (!isScrolling) {
+                isScrolling = true;
+                const scrollPercentage = container1.scrollTop / (container1.scrollHeight - container1.clientHeight);
+                container2.scrollTop = scrollPercentage * (container2.scrollHeight - container2.clientHeight);
+                setTimeout(() => isScrolling = false, 50);
+            }
+        });
+
+        container2.addEventListener('scroll', () => {
+            if (!isScrolling) {
+                isScrolling = true;
+                const scrollPercentage = container2.scrollTop / (container2.scrollHeight - container2.clientHeight);
+                container1.scrollTop = scrollPercentage * (container1.scrollHeight - container1.clientHeight);
+                setTimeout(() => isScrolling = false, 50);
+            }
+        });
+
+        async function extractText(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+            let fullText = '';
+            
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items
+                    .map((item, index, array) => {
+                        // Add line breaks based on y-position changes
+                        const nextItem = array[index + 1];
+                        if (nextItem && Math.abs(item.transform[5] - nextItem.transform[5]) > 5) {
+                            return item.str + '\n';
+                        }
+                        return item.str;
+                    })
+                    .join(' ');
+                fullText += pageText + '\n\n--- Page ' + i + ' ---\n\n';
+            }
+            
+            return fullText;
+        }
+
+        async function handleFileUpload(file, contentId, fileNameId, textNumber) {
+            if (file) {
+                try {
+                    const contentElement = document.getElementById(contentId);
+                    contentElement.innerHTML = '<div class="loading">Processing PDF...</div>';
+                    
+                    const text = await extractText(file);
+                    contentElement.textContent = text;
+                    document.getElementById(fileNameId).textContent = file.name;
+                    if (textNumber === 1) text1 = text;
+                    else text2 = text;
+                    
+                    compareButton.disabled = !(text1 && text2);
+                } catch (error) {
+                    console.error('Error processing PDF:', error);
+                    contentElement.textContent = 'Error processing PDF';
+                }
+            }
+        }
+
+        function calculateSimilarity(str1, str2) {
+            const words1 = str1.split(/\s+/);
+            const words2 = str2.split(/\s+/);
+            const commonWords = words1.filter(word => words2.includes(word));
+            return ((2 * commonWords.length) / (words1.length + words2.length) * 100).toFixed(1);
+        }
+
+        function updateInsights(diffResult) {
+            const insightsPanel = document.getElementById('insightsPanel');
+            let wordsAdded = 0;
+            let wordsRemoved = 0;
+
+            diffResult.forEach(part => {
+                if (part.added) {
+                    wordsAdded += part.value.split(/\s+/).length;
+                } else if (part.removed) {
+                    wordsRemoved += part.value.split(/\s+/).length;
+                }
+            });
+
+            const similarityScore = calculateSimilarity(text1, text2);
+            
+            document.getElementById('similarityScore').textContent = similarityScore + '%';
+            document.getElementById('wordsAdded').textContent = wordsAdded;
+            document.getElementById('wordsRemoved').textContent = wordsRemoved;
+            document.getElementById('totalChanges').textContent = wordsAdded + wordsRemoved;
+            
+            insightsPanel.style.display = 'block';
+        }
+
+        document.getElementById('file1').addEventListener('change', (e) => {
+            handleFileUpload(e.target.files[0], 'content1', 'fileName1', 1);
+        });
+
+        document.getElementById('file2').addEventListener('change', (e) => {
+            handleFileUpload(e.target.files[0], 'content2', 'fileName2', 2);
+        });
+
+        compareButton.addEventListener('click', () => {
+            const diffResult = JsDiff.diffWords(text1, text2);
+            
+            container1.innerHTML = '';
+            container2.innerHTML = '';
+
+            diffResult.forEach(part => {
+                const span = document.createElement('span');
+                span.textContent = part.value;
+                
+                if (part.added) {
+                    span.className = 'diff-add';
+                    container2.appendChild(span);
+                } else if (part.removed) {
+                    span.className = 'diff-remove';
+                    container1.appendChild(span);
+                } else {
+                    container1.appendChild(document.createTextNode(part.value));
+                    container2.appendChild(document.createTextNode(part.value));
+                }
+            });
+
+            updateInsights(diffResult);
+        });
+    </script>
+</body>
+</html>

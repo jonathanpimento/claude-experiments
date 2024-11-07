@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Podcast Service Cost Estimator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+     text-align: center;
+            color: var(--text-primary);
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            font-weight: 700;
+                        font-family: system-ui, -apple-system, sans-serif;
+        }
+        .input-container, .results-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .column {
+            flex: 1;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        .shared-inputs {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+        }
+        button {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result-row {
+            margin-bottom: 20px;
+            padding: 12px;
+            border-radius: 4px;
+        }
+        .result-title {
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 15px;
+        }
+        .result-value {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            color: #1a1a1a;
+        }
+        .important-result.peak {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 5px;
+            cursor: help;
+        }
+        .tooltip-text {
+            visibility: hidden;
+            width: 300px;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 5px;
+            border-radius: 6px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -150px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 14px;
+        }
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        h2 {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+                .project-description{
+   margin-left: 20%;
+    margin-right: 20%;
+    text-align: center;
+    margin-bottom: 5%;
+    background-color: #ececec;
+    padding: 2%;
+    border-radius: 12px;
+                                font-family: system-ui, -apple-system, sans-serif;
+        }
+        .nav{
+            margin-top:2%;
+        }
+        .projects-button a{
+color: #909066;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 14px;
+    background-color: #000000;
+    padding: 12px;
+    border-radius: 30px;
+        }
+    </style>
+</head>
+<body>
+        <div class="nav">
+        <div class="projects-button"><a href="index.html">All Projects</a></div>
+    </div>
+    <h1>Podcast Service Cost Estimator</h1>
+     <p class="project-description">Using average and peak requests easily calculate projected cost based on requests and generated audio per minute for each month.</p>
+    <div class="input-container">
+        <div class="column">
+            <h2 id="columnATitle">January FY24</h2>
+            <div class="form-group">
+                <label for="monthA">Month:</label>
+                <select id="monthA" onchange="updateColumnTitle('A')">
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="peakRpmA">Peak RPM:</label>
+                <input type="number" id="peakRpmA" step="0.01">
+            </div>
+            <div class="form-group">
+                <label for="avgRpmA">Average RPM:</label>
+                <input type="number" id="avgRpmA" step="0.01">
+            </div>
+        </div>
+        
+        <div class="column">
+            <h2 id="columnBTitle">February FY24</h2>
+            <div class="form-group">
+                <label for="monthB">Month:</label>
+                <select id="monthB" onchange="updateColumnTitle('B')">
+                    <option value="1">January</option>
+                    <option value="2" selected>February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="peakRpmB">Peak RPM:</label>
+                <input type="number" id="peakRpmB" step="0.01">
+            </div>
+            <div class="form-group">
+                <label for="avgRpmB">Average RPM:</label>
+                <input type="number" id="avgRpmB" step="0.01">
+            </div>
+        </div>
+    </div>
+
+    <div class="shared-inputs">
+        <div class="form-group">
+            <label for="avgDuration">Average Audio Duration (minutes):</label>
+            <input type="number" id="avgDuration" step="0.01">
+        </div>
+        <div class="form-group">
+            <label for="costRequest">Cost per Request ($):</label>
+            <input type="number" id="costRequest" step="0.01">
+        </div>
+        <div class="form-group">
+            <label for="costGeneration">Cost per Generation ($):</label>
+            <input type="number" id="costGeneration" step="0.01">
+        </div>
+    </div>
+
+    <button onclick="calculate()">Estimate</button>
+
+    <div class="results-container" id="results" style="display: none;">
+        <div class="column">
+            <h2 id="resultsATitle"></h2>
+            <div id="resultsA"></div>
+        </div>
+        <div class="column">
+            <h2 id="resultsBTitle"></h2>
+            <div id="resultsB"></div>
+        </div>
+    </div>
+
+    <script>
+        function getDaysInMonth(month, year) {
+            return new Date(year, month, 0).getDate();
+        }
+
+        function updateColumnTitle(column) {
+            const monthSelect = document.getElementById('month' + column);
+            const monthName = monthSelect.options[monthSelect.selectedIndex].text;
+            document.getElementById('column' + column + 'Title').textContent = `${monthName} FY24`;
+        }
+
+        function formatCurrency(value) {
+            return '$' + value.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function formatNumber(value) {
+            return value.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function calculate() {
+            document.getElementById('results').style.display = 'flex';
+            
+            const calculateForColumn = (column) => {
+                const month = parseInt(document.getElementById('month' + column).value);
+                const peakRpm = parseFloat(document.getElementById('peakRpm' + column).value) || 0;
+                const avgRpm = parseFloat(document.getElementById('avgRpm' + column).value) || 0;
+                const avgDuration = parseFloat(document.getElementById('avgDuration').value) || 0;
+                const costRequest = parseFloat(document.getElementById('costRequest').value) || 0;
+                const costGeneration = parseFloat(document.getElementById('costGeneration').value) || 0;
+                
+                const daysInMonth = getDaysInMonth(month, 2024);
+                
+                // Calculations
+                const totalRpmPeak = peakRpm * 60 * 24 * daysInMonth;
+                const totalRpmAvg = avgRpm * 60 * 24 * daysInMonth;
+                const genAudioPeak = peakRpm * avgDuration;
+                const genAudioAvg = avgRpm * avgDuration;
+                const totalGenAudioPeak = totalRpmPeak * avgDuration;
+                const totalGenAudioAvg = totalRpmAvg * avgDuration;
+                const totalCostRequestPeak = totalRpmPeak * costRequest;
+                const totalCostRequestAvg = totalRpmAvg * costRequest;
+                const totalCostGenPeak = totalGenAudioPeak * costGeneration;
+                const totalCostGenAvg = totalGenAudioAvg * costGeneration;
+
+                const monthName = document.getElementById('month' + column).options[document.getElementById('month' + column).selectedIndex].text;
+                document.getElementById('results' + column + 'Title').textContent = `${monthName} FY24 Results`;
+
+                const results = [
+                    {
+                        title: "Total RPM (Peak)",
+                        value: `${formatNumber(totalRpmPeak)} requests`,
+                        formula: "Peak RPM × 60 × 24 × days in month"
+                    },
+                    {
+                        title: "Total RPM (Average)",
+                        value: `${formatNumber(totalRpmAvg)} requests`,
+                        formula: "Average RPM × 60 × 24 × days in month"
+                    },
+                    {
+                        title: "Generated Audio/Minute (Peak)",
+                        value: `${formatNumber(genAudioPeak)} minutes`,
+                        formula: "Peak RPM × Average Audio Duration"
+                    },
+                    {
+                        title: "Generated Audio/Minute (Average)",
+                        value: `${formatNumber(genAudioAvg)} minutes`,
+                        formula: "Average RPM × Average Audio Duration"
+                    },
+                    {
+                        title: "Total Generated Audio/Minute (Peak)",
+                        value: `${formatNumber(totalGenAudioPeak)} minutes`,
+                        formula: "Total RPM (Peak) × Average Audio Duration"
+                    },
+                    {
+                        title: "Total Generated Audio/Minute (Average)",
+                        value: `${formatNumber(totalGenAudioAvg)} minutes`,
+                        formula: "Total RPM (Average) × Average Audio Duration"
+                    },
+                    {
+                        title: "Total Monthly Cost/Request (Peak)",
+                        value: formatCurrency(totalCostRequestPeak),
+                        formula: "Total RPM (Peak) × Cost per Request",
+                        important: true,
+                        peak: true
+                    },
+                    {
+                        title: "Total Monthly Cost/Request (Average)",
+                        value: formatCurrency(totalCostRequestAvg),
+                        formula: "Total RPM (Average) × Cost per Request",
+                        important: true
+                    },
+                    {
+                        title: "Total Monthly Cost/Generation (Peak)",
+                        value: formatCurrency(totalCostGenPeak),
+                        formula: "Total Generated Audio/Minute (Peak) × Cost per Generation",
+                        important: true,
+                        peak: true
+                    },
+                    {
+                        title: "Total Monthly Cost/Generation (Average)",
+                        value: formatCurrency(totalCostGenAvg),
+                        formula: "Total Generated Audio/Minute (Average) × Cost per Generation",
+                        important: true
+                    }
+                ];
+
+                const resultsHtml = results.map(result => `
+                    <div class="result-row ${result.important ? 'important-result' : ''} ${result.peak ? 'peak' : ''}">
+                        <div class="result-title">
+                            ${result.title}
+                            <span class="tooltip">(?)<span class="tooltip-text">${result.formula}</span></span>
+                        </div>
+                        <div class="result-value">${result.value}</div>
+                    </div>
+                `).join('');
+
+                document.getElementById('results' + column).innerHTML = resultsHtml;
+            };
+
+            calculateForColumn('A');
+            calculateForColumn('B');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Audio Transcription Interface</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .container {
+            border-radius: 8px;
+            padding: 2rem;
+            background-color: #f9fafb;
+        }
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            background-color: white;
+        }
+        .upload-area.drag-over {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        .transcription {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            min-height: 100px;
+            margin-top: 1rem;
+            white-space: pre-wrap;
+        }
+        .file-info {
+            margin: 1rem 0;
+            color: #4b5563;
+        }
+        button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0.25rem;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+        button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e5e7eb;
+            border-radius: 10px;
+            margin: 1rem 0;
+            display: none;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #3b82f6;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .error {
+            color: #dc2626;
+            margin: 1rem 0;
+        }
+        #waveform {
+            width: 100%;
+            height: 100px;
+            margin: 1rem 0;
+            background: #f3f4f6;
+            border-radius: 4px;
+        }
+        .status {
+            margin: 1rem 0;
+            padding: 1rem;
+            background-color: #f3f4f6;
+            border-radius: 4px;
+        }
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Audio Transcription</h1>
+        <div class="upload-area" id="dropZone">
+            <p>Drag and drop an audio file here or</p>
+            <button onclick="document.getElementById('fileInput').click()">Choose File</button>
+            <input type="file" id="fileInput" accept="audio/*" style="display: none">
+        </div>
+        <div class="file-info" id="fileInfo"></div>
+        <canvas id="waveform"></canvas>
+        <div class="status" id="status">Ready to transcribe</div>
+        <div class="progress-bar" id="progressBar">
+            <div class="progress-bar-fill" id="progressBarFill"></div>
+        </div>
+        <div class="controls">
+            <button id="transcribeBtn" disabled>Start Transcription</button>
+            <button id="pauseBtn" disabled>Pause</button>
+            <button id="resumeBtn" disabled>Resume</button>
+            <button id="stopBtn" disabled>Stop</button>
+        </div>
+        <div class="error" id="errorMessage"></div>
+        <div class="transcription" id="transcriptionOutput"></div>
+        <audio id="audioPlayer" style="display: none;"></audio>
+    </div>
+
+    <script>
+        const statusElement = document.getElementById('status');
+        const transcriptionOutput = document.getElementById('transcriptionOutput');
+        const progressBar = document.getElementById('progressBar');
+        const progressBarFill = document.getElementById('progressBarFill');
+        const transcribeBtn = document.getElementById('transcribeBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resumeBtn = document.getElementById('resumeBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const fileInfo = document.getElementById('fileInfo');
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const waveformCanvas = document.getElementById('waveform');
+        const waveformCtx = waveformCanvas.getContext('2d');
+        const audioPlayer = document.getElementById('audioPlayer');
+
+        let currentFile = null;
+        let recognition = null;
+
+        // Initialize Web Speech API
+        try {
+            window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            
+            recognition.onresult = (event) => {
+                let finalTranscript = '';
+                let interimTranscript = '';
+
+                for (let i = 0; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+
+                transcriptionOutput.innerHTML = 
+                    `<div style="color: #000;">${finalTranscript}</div>` +
+                    `<div style="color: #666;">${interimTranscript}</div>`;
+            };
+
+            recognition.onerror = (event) => {
+                errorMessage.textContent = `Error during transcription: ${event.error}`;
+                stopTranscription();
+            };
+
+            statusElement.textContent = "Ready to transcribe";
+        } catch (error) {
+            errorMessage.textContent = "Speech recognition is not supported in your browser. Please use Chrome.";
+            console.error('Speech Recognition Error:', error);
+        }
+
+        // Event Listeners
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        dropZone.addEventListener('drop', handleDrop, false);
+        fileInput.addEventListener('change', handleFileSelect, false);
+        transcribeBtn.addEventListener('click', startTranscription, false);
+        pauseBtn.addEventListener('click', pauseTranscription, false);
+        resumeBtn.addEventListener('click', resumeTranscription, false);
+        stopBtn.addEventListener('click', stopTranscription, false);
+
+        // Utility Functions
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function highlight(e) {
+            dropZone.classList.add('drag-over');
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            handleFiles(dt.files);
+        }
+
+        function handleFileSelect(e) {
+            handleFiles(e.target.files);
+        }
+
+        async function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('audio/')) {
+                    currentFile = file;
+                    fileInfo.textContent = `Selected file: ${file.name} (${formatFileSize(file.size)})`;
+                    transcribeBtn.disabled = false;
+                    errorMessage.textContent = '';
+                    audioPlayer.src = URL.createObjectURL(file);
+                    await drawWaveform(file);
+                } else {
+                    fileInfo.textContent = 'Please select an audio file.';
+                    transcribeBtn.disabled = true;
+                    currentFile = null;
+                }
+            }
+        }
+
+        async function drawWaveform(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                
+                const width = waveformCanvas.width = waveformCanvas.offsetWidth;
+                const height = waveformCanvas.height;
+                const data = audioBuffer.getChannelData(0);
+                const step = Math.ceil(data.length / width);
+                
+                waveformCtx.fillStyle = '#3b82f6';
+                waveformCtx.clearRect(0, 0, width, height);
+
+                for(let i = 0; i < width; i++) {
+                    const start = i * step;
+                    const end = start + step;
+                    let min = 1.0;
+                    let max = -1.0;
+                    
+                    for(let j = start; j < end; j++) {
+                        const value = data[j];
+                        if (value < min) min = value;
+                        if (value > max) max = value;
+                    }
+                    
+                    const y1 = (1 + min) * height / 2;
+                    const y2 = (1 + max) * height / 2;
+                    waveformCtx.fillRect(i, y1, 1, y2 - y1);
+                }
+            } catch (error) {
+                console.error('Error drawing waveform:', error);
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function startTranscription() {
+            if (!currentFile || !recognition) return;
+
+            try {
+                transcribeBtn.disabled = true;
+                pauseBtn.disabled = false;
+                stopBtn.disabled = false;
+                progressBar.style.display = 'block';
+                statusElement.textContent = 'Transcribing...';
+                transcriptionOutput.textContent = '';
+                errorMessage.textContent = '';
+
+                audioPlayer.play();
+                recognition.start();
+
+                // Update progress bar based on audio playback
+                progressBar.style.display = 'block';
+                updateProgress();
+            } catch (error) {
+                errorMessage.textContent = `Error: ${error.message}`;
+                resetUI();
+            }
+        }
+
+        function pauseTranscription() {
+            audioPlayer.pause();
+            recognition.stop();
+            pauseBtn.disabled = true;
+            resumeBtn.disabled = false;
+            statusElement.textContent = 'Paused';
+        }
+
+        function resumeTranscription() {
+            audioPlayer.play();
+            recognition.start();
+            pauseBtn.disabled = false;
+            resumeBtn.disabled = true;
+            statusElement.textContent = 'Transcribing...';
+        }
+
+        function stopTranscription() {
+            audioPlayer.pause();
+            audioPlayer.currentTime = 0;
+            recognition.stop();
+            resetUI();
+            statusElement.textContent = 'Stopped';
+        }
+
+        function resetUI() {
+            transcribeBtn.disabled = !currentFile;
+            pauseBtn.disabled = true;
+            resumeBtn.disabled = true;
+            stopBtn.disabled = true;
+            progressBar.style.display = 'none';
+            progressBarFill.style.width = '0%';
+        }
+
+        function updateProgress() {
+            if (audioPlayer.paused) return;
+            
+            const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+            progressBarFill.style.width = `${progress}%`;
+
+            if (progress < 100) {
+                requestAnimationFrame(updateProgress);
+            } else {
+                resetUI();
+            }
+        }
+
+        audioPlayer.onended = () => {
+            stopTranscription();
+            statusElement.textContent = 'Transcription complete';
+        };
+    </script>
+</body>
+</html>

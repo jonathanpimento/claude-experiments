@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio/Video File Analyzer</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #22c55e;
+            --error: #ef4444;
+            --background: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --highlight-green: rgba(34, 197, 94, 0.1);
+            --highlight-red: rgba(239, 68, 68, 0.1);
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--text-primary);
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            font-weight: 700;
+        }
+
+        .upload-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 0x;
+            margin-bottom: 32px;
+        }
+
+        .upload-box {
+            border: 2px dashed var(--border);
+            padding: 32px;
+            text-align: center;
+            background: var(--card);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin:6px;
+        }
+
+        .upload-box:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .upload-box.has-file {
+            border-color: var(--success);
+            border-style: solid;
+        }
+
+        .upload-box h3 {
+            margin: 0 0 16px 0;
+            color: var(--text);
+            font-size: 1.25rem;
+        }
+
+        .file-input-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .file-input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .file-input-button {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .file-input-container:hover .file-input-button {
+            background: var(--primary-dark);
+        }
+
+        .file-name {
+            margin-top: 12px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            padding: 0 8px;
+        }
+
+        .analyze-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 32px;
+        }
+
+        .analyze-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+            background: var(--primary-dark);
+        }
+
+        .analyze-btn:disabled {
+            background: var(--text-secondary);
+            cursor: not-allowed;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 0px;
+        }
+
+        .result-box {
+            background: var(--card);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .result-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.1);
+        }
+
+        .result-box h3 {
+            margin: 0 0 20px 0;
+            color: var(--text);
+            font-size: 1.25rem;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .property {
+            margin: 16px 0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+
+        .property.match {
+            background-color: var(--highlight-green);
+        }
+
+        .property.different {
+            background-color: var(--highlight-red);
+        }
+
+        .property-name {
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .property-value {
+            color: var(--text-secondary);
+            word-break: break-word;
+        }
+                
+        .project-description{
+   margin-left: 20%;
+    margin-right: 20%;
+    text-align: center;
+    margin-bottom: 5%;
+    background-color: #ececec;
+    padding: 2%;
+    border-radius: 12px;
+        }
+        .projects-button a{
+color: #909066;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 14px;
+    background-color: #000000;
+    padding: 12px;
+    border-radius: 30px;
+        }
+    </style>
+</head>
+<body>
+        <div class="nav">
+        <div class="projects-button"><a href="index.html">All Projects</a></div>
+    </div>
+    <h1>Downloaded File Analyzer</h1>
+     <p class="project-description">Upload the original, Premium enhanced V1 and V2 tracks and the enhanced free version track to compare and highlight changes in file me data. Easily catch changes to file format, duration, channels, and file size.Ideally meant to review if the download workflow and changes we make to it.</p>
+
+    
+    <div class="upload-container">
+        <div class="upload-box" id="upload1">
+            <h3>Original</h3>
+            <div class="file-input-container">
+                <input type="file" accept="audio/*,video/*" class="file-input">
+                <div class="file-input-button">Upload original</div>
+                <div class="file-name">No file chosen</div>
+            </div>
+        </div>
+        <div class="upload-box" id="upload2">
+            <h3>Enhanced V2</h3>
+            <div class="file-input-container">
+                <input type="file" accept="audio/*,video/*" class="file-input">
+                <div class="file-input-button">Upload V2 Enhanced</div>
+                <div class="file-name">No file chosen</div>
+            </div>
+        </div>
+        <div class="upload-box" id="upload3">
+            <h3>Enhanced V1</h3>
+            <div class="file-input-container">
+                <input type="file" accept="audio/*,video/*" class="file-input">
+                <div class="file-input-button">Upload V1 Enhanced </div>
+                <div class="file-name">No file chosen</div>
+            </div>
+        </div>
+        <div class="upload-box" id="upload4">
+            <h3>Enhanced Free</h3>
+            <div class="file-input-container">
+                <input type="file" accept="audio/*,video/*" class="file-input">
+                <div class="file-input-button">Upload Free Enhanced</div>
+                <div class="file-name">No file chosen</div>
+            </div>
+        </div>
+    </div>
+
+    <button class="analyze-btn" id="analyzeBtn" disabled>Analyze Files</button>
+
+    <div class="results" id="results"></div>
+
+    <script>
+        const uploadBoxes = document.querySelectorAll('.upload-box');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const resultsContainer = document.getElementById('results');
+        
+        // Track uploaded files
+        const uploadedFiles = new Map();
+        const fileAnalysis = new Map();
+
+        // Add event listeners to file inputs
+        uploadBoxes.forEach(box => {
+            const input = box.querySelector('input');
+            const fileNameDisplay = box.querySelector('.file-name');
+            
+            input.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    box.classList.add('has-file');
+                    uploadedFiles.set(box.id, file);
+                    fileNameDisplay.textContent = file.name;
+                } else {
+                    box.classList.remove('has-file');
+                    uploadedFiles.delete(box.id);
+                    fileNameDisplay.textContent = 'No file chosen';
+                }
+                
+                analyzeBtn.disabled = uploadedFiles.size === 0;
+            });
+        });
+
+        // Analyze button click handler
+        analyzeBtn.addEventListener('click', async () => {
+            resultsContainer.innerHTML = ''; // Clear previous results
+            fileAnalysis.clear();
+            
+            // Analyze all files first
+            const analysisPromises = Array.from(uploadedFiles.entries()).map(([boxId, file]) => 
+                analyzeFile(file, boxId)
+            );
+            
+            await Promise.all(analysisPromises);
+            
+            // Then display results with comparisons
+            uploadedFiles.forEach((file, boxId) => {
+                displayResults(file, boxId);
+            });
+        });
+
+        // Function to analyze a file
+        async function analyzeFile(file, boxId) {
+            const analysis = {
+                name: file.name,
+                size: formatFileSize(file.size),
+                format: file.type,
+                properties: {}
+            };
+
+            fileAnalysis.set(boxId, analysis);
+
+            // Create audio context for analysis
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+                analysis.properties = {
+                    'Duration': `${audioBuffer.duration.toFixed(2)} seconds`,
+                    'Channels': audioBuffer.numberOfChannels.toString(),
+                    'Sample Rate': `${audioBuffer.sampleRate} Hz`,
+                    'Length': `${audioBuffer.length} samples`
+                };
+
+                // Calculate average volume
+                const data = audioBuffer.getChannelData(0);
+                let sum = 0;
+                let peakAmplitude = 0;
+                
+                for (let i = 0; i < data.length; i++) {
+                    const absolute = Math.abs(data[i]);
+                    sum += absolute;
+                    if (absolute > peakAmplitude) {
+                        peakAmplitude = absolute;
+                    }
+                }
+                
+                analysis.properties['Average Volume'] = (sum / data.length).toFixed(4);
+                analysis.properties['Peak Amplitude'] = peakAmplitude.toFixed(4);
+
+            } catch (error) {
+                console.error('Analysis error:', error);
+                analysis.error = 'Failed to analyze audio data';
+            }
+        }
+
+        function displayResults(file, boxId) {
+            const analysis = fileAnalysis.get(boxId);
+            const resultBox = document.createElement('div');
+            resultBox.className = 'result-box';
+            resultBox.innerHTML = `<h3>${analysis.name}</h3>`;
+
+            // Add basic file properties
+            addComparedProperty(resultBox, 'File Size', analysis.size);
+            addComparedProperty(resultBox, 'Format', analysis.format);
+
+            // Add audio properties
+            if (analysis.properties) {
+                Object.entries(analysis.properties).forEach(([key, value]) => {
+                    addComparedProperty(resultBox, key, value);
+                });
+            }
+
+            if (analysis.error) {
+                addProperty(resultBox, 'Error', analysis.error);
+            }
+
+            resultsContainer.appendChild(resultBox);
+        }
+
+        function addComparedProperty(container, name, value) {
+            const prop = document.createElement('div');
+            prop.className = 'property';
+            
+            // Compare this value with the same property in other files
+            const allValues = new Set();
+            fileAnalysis.forEach(analysis => {
+                if (name === 'File Size') {
+                    allValues.add(analysis.size);
+                } else if (name === 'Format') {
+                    allValues.add(analysis.format);
+                } else if (analysis.properties && analysis.properties[name]) {
+                    allValues.add(analysis.properties[name]);
+                }
+            });
+
+            // Add match/different class based on comparison
+            if (allValues.size === 1) {
+                prop.classList.add('match');
+            } else if (allValues.size > 1) {
+                prop.classList.add('different');
+            }
+
+            prop.innerHTML = `
+                <div class="property-name">${name}</div>
+                <div class="property-value">${value}</div>
+            `;
+            container.appendChild(prop);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>
