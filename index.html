@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Claude After Dinner</title>
+    <title>Claude Experiments - Jonathan Pimento</title>
     <style>
         * {
             margin: 0;
@@ -71,44 +72,44 @@
 
         /* Original gradients */
         .project-card:nth-child(1) {
-            background: linear-gradient(45deg, #FF6B6B, #FFE66D);
+            background: linear-gradient(133.13deg, rgb(82, 102, 255) 5.68%, rgb(184, 113, 255) 96.33%);
         }
 
         .project-card:nth-child(2) {
-            background: linear-gradient(45deg, #4ECDC4, #556270);
+        background: linear-gradient(45deg, #4ECDC4, #556270);
         }
 
         .project-card:nth-child(3) {
-            background: linear-gradient(45deg, #764BA2, #667EEA);
+        background: linear-gradient(45deg, #764BA2, #667EEA);
         }
 
         .project-card:nth-child(4) {
-            background: linear-gradient(45deg, #FC5C7D, #6A82FB);
+        background: linear-gradient(45deg, #FC5C7D, #6A82FB);
         }
 
         /* New gradients for additional cards */
         .project-card:nth-child(5) {
-            background: linear-gradient(45deg, #00B4DB, #0083B0);
+        background: linear-gradient(45deg, #00B4DB, #0083B0);
         }
 
         .project-card:nth-child(6) {
-            background: linear-gradient(45deg, #F7971E, #FFD200);
+        background: linear-gradient(45deg, #F7971E, #FFD200);
         }
 
         .project-card:nth-child(7) {
-            background: linear-gradient(45deg, #56CCF2, #2F80ED);
+        background: linear-gradient(45deg, #56CCF2, #2F80ED);
         }
 
         .project-card:nth-child(8) {
-            background: linear-gradient(45deg, #A8E6CF, #1DE9B6);
+        background: linear-gradient(45deg, #A8E6CF, #1DE9B6);
         }
 
         .project-card:nth-child(9) {
-            background: linear-gradient(45deg, #ED4264, #FFEDBC);
+        background: linear-gradient(45deg, #ED4264, #FFEDBC);
         }
 
         .project-card:nth-child(10) {
-            background: linear-gradient(45deg, #834D9B, #D04ED6);
+        background: linear-gradient(45deg, #834D9B, #D04ED6);
         }
 
         .project-title {
@@ -139,19 +140,25 @@
             left: 0;
             right: 0;
             height: 50%;
-            background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.3), transparent);
             pointer-events: none;
         }
+
     </style>
 </head>
+
 <body>
     <div class="container">
         <header>
-            <h1>Claude After Dinner</h1>
-            <p class="subtitle">A collection of explorations using Claude, PDF and Web Audio API to build some tools that speed up everyday tasks.</p>
+            <h1>Claude Experiments</h1>
+            <p class="subtitle">A collection of explorations using Claude's API, PDF and Web Audio API to build some tools that speed up everyday tasks.</p>
         </header>
 
         <div class="grid">
+            <a href="https://jonathanpimento.github.io/transcript/" class="project-card">
+                <h2 class="project-title">AI Episode Insights</h2>
+                <p class="project-description">Generate a summary, speaker highlights, chapters, conversation flows, category tags and several other insights from your Podcast recording in seconds.</p>
+            </a>
             <a href="podcast-enhance-mixer.html" class="project-card">
                 <h2 class="project-title">Enhance Speech Mixer</h2>
                 <p class="project-description">Generate a video and audio file that mixes five seconds of alternating segments of the original and enhanced audio, making it easy to listen and evaluate model quality.</p>
@@ -161,7 +168,7 @@
                 <h2 class="project-title">Waveform Generator</h2>
                 <p class="project-description">Upload a video file and add a waveform on top matching the audio playback. Customize the waveform color, width, and thickness before downloading it to share.</p>
             </a>
-            
+
             <a href="podcast-export-analyzer.html" class="project-card">
                 <h2 class="project-title">Export Analyzer</h2>
                 <p class="project-description">Compare file metadata of the enhanced files for V1, V2 across free and premium with the original track to identify properties that have changed.</p>
@@ -180,7 +187,7 @@
                 <p class="project-description">Upload a transcript and easily highlight filler words, repeated words and numeric content. Ideal to review test files that could be used for specific scenarios.</p>
             </a>
 
-            <a href="podcast-auto-music.html" class="project-card">
+            <a href="podcast-auto%20-music.html" class="project-card">
                 <h2 class="project-title">Podcast Creator</h2>
                 <p class="project-description">Generate a Podcast by uploading a recording with music that is automatically added as a intro, outro and transition with fade in and outs. Transitions are added during silence or pause.</p>
             </a>
@@ -188,17 +195,8 @@
                 <h2 class="project-title">Realtime Audio Transcription</h2>
                 <p class="project-description">Upload an audio file and generate a transcription in realtime during playback.</p>
             </a>
-
-            <a href="https://jonathanpimento.github.io/transcript/" class="project-card">
-                <h2 class="project-title">Podcast Insights</h2>
-                <p class="project-description">Generate a summary, speaker highlights, chapters, conversation flows, category tags and several other insights from your Podcast recording in seconds.</p>
-            </a>
-
-            <a href="/project10" class="project-card">
-                <h2 class="project-title">Project Ten</h2>
-                <p class="project-description">Machine learning pipeline for image recognition and classification. Includes model training interface, API endpoints, and integration with popular deep learning frameworks.</p>
-            </a>
         </div>
     </div>
 </body>
+
 </html>
