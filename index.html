@@ -15,7 +15,7 @@
 
         body {
             min-height: 100vh;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+            background: #fff;
             padding: 2rem;
         }
 
@@ -51,7 +51,7 @@
         }
 
         .project-card {
-            height: 280px;
+            height: 560px;
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
@@ -63,6 +63,7 @@
             flex-direction: column;
             justify-content: flex-end;
             padding: 1.5rem;
+
         }
 
         .project-card:hover {
@@ -72,58 +73,113 @@
 
         /* Original gradients */
         .project-card:nth-child(1) {
-            background: linear-gradient(133.13deg, rgb(82, 102, 255) 5.68%, rgb(184, 113, 255) 96.33%);
+            background-color: #99a0ff;
+            background-image:
+                radial-gradient(at 70% 65%, hsla(323, 72%, 62%, 1) 0px, transparent 50%),
+                radial-gradient(at 56% 23%, hsla(242, 88%, 61%, 1) 0px, transparent 50%),
+                radial-gradient(at 91% 34%, hsla(333, 84%, 61%, 1) 0px, transparent 50%),
+                radial-gradient(at 64% 80%, hsla(268, 79%, 74%, 1) 0px, transparent 50%),
+                radial-gradient(at 99% 34%, hsla(3, 72%, 75%, 1) 0px, transparent 50%);
         }
 
         .project-card:nth-child(2) {
-        background: linear-gradient(45deg, #4ECDC4, #556270);
+            background-color: hsla(190, 28%, 58%, 1);
+            background-image:
+                radial-gradient(at 65% 18%, hsla(28, 100%, 74%, 1) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 1) 0px, transparent 50%),
+                radial-gradient(at 80% 100%, hsla(242, 100%, 70%, 1) 0px, transparent 50%),
+                radial-gradient(at 69% 66%, hsla(340, 100%, 76%, 1) 0px, transparent 50%),
+                radial-gradient(at 3% 24%, hsla(355, 100%, 93%, 1) 0px, transparent 50%);
         }
 
         .project-card:nth-child(3) {
-        background: linear-gradient(45deg, #764BA2, #667EEA);
+            background-color: #ffbd99;
+            background-image:
+                radial-gradient(at 64% 76%, hsla(205, 97%, 61%, 1) 0px, transparent 50%),
+                radial-gradient(at 37% 57%, hsla(347, 88%, 69%, 1) 0px, transparent 50%),
+                radial-gradient(at 84% 80%, hsla(313, 91%, 77%, 1) 0px, transparent 50%),
+                radial-gradient(at 16% 11%, hsla(269, 87%, 64%, 1) 0px, transparent 50%),
+                radial-gradient(at 50% 5%, hsla(352, 72%, 66%, 1) 0px, transparent 50%);
         }
 
         .project-card:nth-child(4) {
-        background: linear-gradient(45deg, #FC5C7D, #6A82FB);
+            background-color: #99fff1;
+            background-image:
+                radial-gradient(at 26% 38%, hsla(286, 61%, 62%, 1) 0px, transparent 50%),
+                radial-gradient(at 25% 47%, hsla(167, 82%, 69%, 1) 0px, transparent 50%),
+                radial-gradient(at 57% 37%, hsla(169, 60%, 71%, 1) 0px, transparent 50%),
+                radial-gradient(at 52% 36%, hsla(32, 75%, 67%, 1) 0px, transparent 50%),
+                radial-gradient(at 18% 76%, hsla(126, 74%, 77%, 1) 0px, transparent 50%);
         }
 
         /* New gradients for additional cards */
         .project-card:nth-child(5) {
-        background: linear-gradient(45deg, #00B4DB, #0083B0);
+            background-color: #99c3ff;
+            background-image:
+                radial-gradient(at 93% 6%, hsla(52, 82%, 70%, 1) 0px, transparent 50%),
+                radial-gradient(at 43% 6%, hsla(35, 62%, 73%, 1) 0px, transparent 50%),
+                radial-gradient(at 37% 60%, hsla(248, 73%, 71%, 1) 0px, transparent 50%),
+                radial-gradient(at 86% 67%, hsla(357, 69%, 70%, 1) 0px, transparent 50%),
+                radial-gradient(at 93% 79%, hsla(82, 76%, 64%, 1) 0px, transparent 50%);
         }
 
         .project-card:nth-child(6) {
-        background: linear-gradient(45deg, #F7971E, #FFD200);
+            background-color: hsla(359, 100%, 80%, 1);
+            background-image:
+                radial-gradient(at 8% 25%, hsla(269, 72%, 64%, 1) 0px, transparent 50%),
+                radial-gradient(at 42% 80%, hsla(343, 79%, 72%, 1) 0px, transparent 50%),
+                radial-gradient(at 77% 82%, hsla(64, 77%, 72%, 1) 0px, transparent 50%),
+                radial-gradient(at 58% 53%, hsla(151, 70%, 75%, 1) 0px, transparent 50%),
+                radial-gradient(at 49% 65%, hsla(287, 67%, 75%, 1) 0px, transparent 50%);
         }
 
         .project-card:nth-child(7) {
-        background: linear-gradient(45deg, #56CCF2, #2F80ED);
+            background-color: #ce99ff;
+            background-image:
+                radial-gradient(at 23% 46%, hsla(36, 73%, 61%, 1) 0px, transparent 50%),
+                radial-gradient(at 4% 13%, hsla(347, 94%, 66%, 1) 0px, transparent 50%),
+                radial-gradient(at 52% 44%, hsla(151, 63%, 76%, 1) 0px, transparent 50%),
+                radial-gradient(at 48% 88%, hsla(174, 61%, 66%, 1) 0px, transparent 50%),
+                radial-gradient(at 79% 93%, hsla(166, 73%, 64%, 1) 0px, transparent 50%);
         }
 
         .project-card:nth-child(8) {
-        background: linear-gradient(45deg, #A8E6CF, #1DE9B6);
+            background-color: hsla(240, 31%, 53%, 1);
+            background-image:
+                radial-gradient(at 17% 89%, hsla(229, 93%, 77%, 1) 0px, transparent 50%),
+                radial-gradient(at 70% 94%, hsla(158, 74%, 78%, 1) 0px, transparent 50%),
+                radial-gradient(at 90% 91%, hsla(127, 62%, 65%, 1) 0px, transparent 50%),
+                radial-gradient(at 43% 27%, hsla(156, 74%, 68%, 1) 0px, transparent 50%),
+                radial-gradient(at 99% 64%, hsla(256, 88%, 71%, 1) 0px, transparent 50%);
         }
 
         .project-card:nth-child(9) {
-        background: linear-gradient(45deg, #ED4264, #FFEDBC);
+            background-color: #ffdf99;
+            background-image:
+                radial-gradient(at 16% 78%, hsla(232, 60%, 70%, 1) 0px, transparent 50%),
+                radial-gradient(at 76% 74%, hsla(91, 80%, 74%, 1) 0px, transparent 50%),
+                radial-gradient(at 22% 15%, hsla(27, 64%, 67%, 1) 0px, transparent 50%),
+                radial-gradient(at 74% 1%, hsla(212, 78%, 77%, 1) 0px, transparent 50%),
+                radial-gradient(at 27% 54%, hsla(113, 62%, 69%, 1) 0px, transparent 50%);
         }
 
         .project-card:nth-child(10) {
-        background: linear-gradient(45deg, #834D9B, #D04ED6);
+            background: linear-gradient(45deg, #834D9B, #D04ED6);
         }
 
         .project-title {
-            font-size: 1.5rem;
+            font-size: 16px;
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            margin-bottom: 400px;
             position: relative;
             z-index: 1;
+            color: #fff;
         }
 
         .project-description {
             font-size: 0.95rem;
             line-height: 1.5;
-            opacity: 0.9;
+            opacity: 0.8;
             position: relative;
             z-index: 1;
             display: -webkit-box;
@@ -157,43 +213,43 @@
         <div class="grid">
             <a href="https://jonathanpimento.github.io/transcript/" class="project-card">
                 <h2 class="project-title">AI Episode Insights</h2>
-                <p class="project-description">Generate a summary, speaker highlights, chapters, conversation flows, category tags and several other insights from your Podcast recording in seconds.</p>
+                <p class="project-description">Generate a summary, speaker highlights, chapters, conversation flows, category tags and several other insights from your Podcast recording in seconds →</p>
             </a>
             <a href="podcast-enhance-mixer.html" class="project-card">
                 <h2 class="project-title">Enhance Speech Mixer</h2>
-                <p class="project-description">Generate a video and audio file that mixes five seconds of alternating segments of the original and enhanced audio, making it easy to listen and evaluate model quality.</p>
+                <p class="project-description">Generate a video and audio file that mixes five seconds of alternating segments of the original and enhanced audio, making it easy to listen and evaluate model quality →</p>
             </a>
 
             <a href="podcast-audiogram.html" class="project-card">
                 <h2 class="project-title">Waveform Generator</h2>
-                <p class="project-description">Upload a video file and add a waveform on top matching the audio playback. Customize the waveform color, width, and thickness before downloading it to share.</p>
+                <p class="project-description">Upload a video file and add a waveform on top matching the audio playback. Customize the waveform color, width, and thickness before downloading it to share →</p>
             </a>
 
             <a href="podcast-export-analyzer.html" class="project-card">
                 <h2 class="project-title">Export Analyzer</h2>
-                <p class="project-description">Compare file metadata of the enhanced files for V1, V2 across free and premium with the original track to identify properties that have changed.</p>
+                <p class="project-description">Compare file metadata of the enhanced files for V1, V2 across free and premium with the original track to identify properties that have changed →</p>
             </a>
             <a href="podcast-service-cost.html" class="project-card">
                 <h2 class="project-title">Service Cost Estimator</h2>
-                <p class="project-description">Using average and peak requests calculate projected service cost based on requests, file duration and generated audio per minute for each month. </p>
+                <p class="project-description">Using average and peak requests calculate projected service cost based on requests, file duration and generated audio per minute for each month →</p>
             </a>
             <a href="podcast-transcript-preview.html" class="project-card">
                 <h2 class="project-title">Transcript Comparison</h2>
-                <p class="project-description">Compare two transcripts side by side with highlights to indicate added and deleted words along with a summary of changes including a similarity score.</p>
+                <p class="project-description">Compare two transcripts side by side with highlights to indicate added and deleted words along with a summary of changes including a similarity score →</p>
             </a>
 
             <a href="podcast-transcript-detection.html" class="project-card">
                 <h2 class="project-title">Transcript Analysis</h2>
-                <p class="project-description">Upload a transcript and easily highlight filler words, repeated words and numeric content. Ideal to review test files that could be used for specific scenarios.</p>
+                <p class="project-description">Upload a transcript and easily highlight filler words, repeated words and numeric content. Ideal to review test files that could be used for specific scenarios →</p>
             </a>
 
             <a href="podcast-auto%20-music.html" class="project-card">
                 <h2 class="project-title">Podcast Creator</h2>
-                <p class="project-description">Generate a Podcast by uploading a recording with music that is automatically added as a intro, outro and transition with fade in and outs. Transitions are added during silence or pause.</p>
+                <p class="project-description">Generate a Podcast by uploading a recording with music that is automatically added as a intro, outro and transition with fade in and outs. Transitions are added during silence or pause →</p>
             </a>
             <a href="podcast-transcript-generate.html" class="project-card">
                 <h2 class="project-title">Realtime Audio Transcription</h2>
-                <p class="project-description">Upload an audio file and generate a transcription in realtime during playback.</p>
+                <p class="project-description">Upload an audio file and generate a transcription in realtime during playback →</p>
             </a>
         </div>
     </div>
