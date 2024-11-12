@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Podcast AI Host</title>
+    <title>Podcast Host AI</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         * {
@@ -21,6 +21,7 @@
             background-image: url(bg.svg);
             background-repeat: repeat;
         }
+
 
         .container {
             max-width: 800px;
@@ -162,125 +163,18 @@
             margin: 1rem 0;
             background-color: #f8fafc;
             resize: vertical;
+            max-height: 400px;
+            overflow-y: auto;
+            transition: height 0.2s ease;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            line-height: 1.5;
         }
 
         .response-input:focus {
             outline: none;
             border-color: #60a5fa;
             box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
-        }
-
-        button {
-            background: #575de8;
-            color: white;
-            cursor: pointer;
-            width: 26%;
-            padding: 15px;
-            margin-left: 37%;
-            font-size: 16px;
-            font-weight: 500;
-            font-family: system-ui;
-            border-radius: 50px;
-            border: 1px solid #575de8;
-        }
-
-        button:hover {
-            background-color: #575de8;
-        }
-
-        button+button {
-            margin-left: 1rem;
-        }
-
-        #typing-indicator {
-            color: #64748b;
-            font-size: 0.875rem;
-            margin: 1rem 0;
-            display: none;
-        }
-
-        .session {
-            background: white;
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            margin-bottom: 2rem;
-        }
-
-        .session-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .session-info {
-            font-size: 0.875rem;
-            color: #64748b;
-        }
-
-        .session-topic {
-            font-weight: 600;
-            color: #000;
-            font-size: 1.125rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .guest-name {
-            color: #475569;
-            font-weight: 500;
-        }
-
-        #history {
-            margin-top: 3rem;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 640px) {
-            body {
-                padding: 1rem;
-            }
-
-            .setup-section,
-            .chat-section,
-            .session {
-                padding: 1.5rem;
-            }
-
-            .message {
-                margin-bottom: 1.5rem;
-            }
-
-            .message-content {
-                padding: 1rem;
-            }
-
-            button {
-                width: 100%;
-                margin: 0.5rem 0;
-            }
-
-            button+button {
-                margin-left: 0;
-            }
-        }
-
-        .wand {
-            width: 32px;
-            margin-right: 8px;
-        }
-
-        .project-description {
-            margin-left: 10%;
-            margin-right: 10%;
-            text-align: center;
-            margin-bottom: 5%;
-            background-color: #ececec;
-            padding: 2%;
-            border-radius: 12px;
-            color: #000;
         }
 
         .input-controls {
@@ -353,191 +247,444 @@
             opacity: 1;
         }
 
+        button {
+            background: #575de8;
+            color: white;
+            cursor: pointer;
+            width: 26%;
+            padding: 15px;
+            margin-left: 37%;
+            font-size: 16px;
+            font-weight: 500;
+            font-family: system-ui;
+            border-radius: 50px;
+            border: 1px solid #575de8;
+        }
+
+        button:hover {
+            background-color: #575de8;
+        }
+
+        button+button {
+            margin-left: 1rem;
+        }
+
+        .session {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .session-info {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .session-topic {
+            font-weight: 600;
+            color: #3b82f6;
+            font-size: 1.125rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .guest-name {
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .guest-desc {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-style: italic;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        #history {
+            margin-top: 3rem;
+        }
+
+        #typing-indicator {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+
+            .setup-section,
+            .chat-section,
+            .session {
+                padding: 1.5rem;
+            }
+
+            .message {
+                margin-bottom: 1.5rem;
+            }
+
+            .message-content {
+                padding: 1rem;
+            }
+
+            button {
+                width: 100%;
+                margin: 0.5rem 0;
+            }
+
+            button+button {
+                margin-left: 0;
+            }
+        }
+
+        .wand {
+            width: 32px;
+            margin-right: 8px;
+        }
+
+        .project-description {
+            margin-left: 10%;
+            margin-right: 10%;
+            text-align: center;
+            margin-bottom: 5%;
+            background-color: #ececec;
+            padding: 2%;
+            border-radius: 12px;
+            color: #000;
+        }
+
     </style>
 </head>
 
 <body>
     <div class="container">
-        <div class="setup-section" id="setup">
-            <h1> <img src="wand.svg" class="wand">Podcast AI Host</h1>
-            <p class="project-description">Pick a topic and have a conversation with your virtual Podcast host - Sam who will help you build a natural conversation, asking you questions, reacting to your responses and following up with thoughts and more questions.</p>
-            <div class="input-group">
-                <input type="password" id="apiKey" placeholder="Enter your Claude API key">
+        <div class="input-group">
+            <div class="setup-section" id="setup">
+                <h1>
+                    <img src="wand.svg" class="wand">Podcast Host AI
+                </h1>
+                <p class="project-description">Pick a topic and have a conversation with your AI Podcast host - Sam who will help you build a natural conversation, asking you questions, reacting to your responses and following up with thoughts and more questions.</p>
+                <div class="input-group">
+                    <label for="apiKey">Claude API Key:</label>
+                    <input type="password" id="apiKey" placeholder="Enter your Claude API key">
+                </div>
+                <div class="input-group">
+                    <label for="guestName">Guest Name:</label>
+                    <input type="text" id="guestName" placeholder="Enter your name">
+                </div>
+                <div class="input-group">
+                    <label for="guestDesc">Guest Background:</label>
+                    <textarea id="guestDesc" placeholder="Brief description of guest's background, expertise, or relevant experience..." rows="3" class="response-input"></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="topic">Podcast Topic:</label>
+                    <input type="text" id="topic" placeholder="Enter the podcast topic">
+                </div>
+                <button onclick="startPodcast()">Start Conversation</button>
             </div>
-            <div class="input-group">
-                <input type="text" id="guestName" placeholder="Type your guest name">
+
+            <div class="chat-section" id="chat">
+                <div id="conversation"></div>
+                <div id="typing-indicator">Sam is thinking...</div>
+                <div class="input-controls">
+                    <textarea class="response-input" id="userResponse" placeholder="Type your response or click the microphone to speak..." rows="4"></textarea>
+                    <button class="mic-button" id="micButton" title="Click to start speaking">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#575de8">
+                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+                            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+                        </svg>
+                    </button>
+                    <span class="speech-status" id="speechStatus">Listening...</span>
+                </div>
+                <div>
+                    <button onclick="sendResponse()">Next</button>
+                    <button onclick="endSession()">Wrap up</button>
+                </div>
             </div>
-            <div class="input-group">
-                <input type="text" id="topic" placeholder="Type your Podcast topic">
-            </div>
-            <button onclick="startPodcast()">Start Conversation</button>
+
+            <div id="history"></div>
         </div>
 
-        <div class="chat-section" id="chat">
-            <div id="conversation"></div>
-            <div id="typing-indicator">Host is thinking...</div>
-            <div class="input-controls">
-                <textarea class="response-input" id="userResponse" placeholder="Type your response or speak..." rows="4"></textarea>
-                <button class="mic-button" id="micButton" title="Click to start speaking">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#575de8">
-                        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
-                        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
-                    </svg>
-                </button>
-                <span class="speech-status" id="speechStatus">Listening...</span>
-            </div>
-            <div>
-                <button onclick="sendResponse()">Next</button>
-                <button onclick="endSession()">Wrap Up</button>
-            </div>
-        </div>
+        <script>
+            let conversationHistory = [];
+            let sessionCount = 0;
+            let recognition = null;
+            let isRecording = false;
+            let finalTranscript = '';
 
-        <div id="history"></div>
-    </div>
+            function initializeSpeechRecognition() {
+                if ('webkitSpeechRecognition' in window) {
+                    recognition = new webkitSpeechRecognition();
+                    recognition.continuous = true;
+                    recognition.interimResults = true;
 
-    <script>
-        let conversationHistory = [];
-        let sessionCount = 0;
+                    recognition.onstart = function() {
+                        isRecording = true;
+                        document.getElementById('micButton').classList.add('recording');
+                        document.getElementById('speechStatus').classList.add('visible');
+                        finalTranscript = document.getElementById('userResponse').value || '';
+                    };
 
-        async function startPodcast() {
-            const apiKey = document.getElementById('apiKey').value;
-            const topic = document.getElementById('topic').value;
-            const guestName = document.getElementById('guestName').value;
+                    recognition.onend = function() {
+                        if (isRecording) {
+                            try {
+                                recognition.start();
+                            } catch (e) {
+                                console.error('Error restarting recognition:', e);
+                                stopRecording();
+                            }
+                        } else {
+                            document.getElementById('micButton').classList.remove('recording');
+                            document.getElementById('speechStatus').classList.remove('visible');
+                        }
+                    };
 
-            if (!apiKey || !topic || !guestName) {
-                alert('Please enter API key, your name, and the topic');
-                return;
+                    recognition.onresult = function(event) {
+                        let interimTranscript = '';
+
+                        for (let i = event.resultIndex; i < event.results.length; i++) {
+                            const transcript = event.results[i][0].transcript;
+                            if (event.results[i].isFinal) {
+                                if (finalTranscript && !finalTranscript.endsWith(' ')) {
+                                    finalTranscript += ' ';
+                                }
+                                finalTranscript += transcript;
+                            } else {
+                                interimTranscript = transcript;
+                            }
+                        }
+
+                        const textarea = document.getElementById('userResponse');
+                        textarea.value = finalTranscript;
+                        if (interimTranscript) {
+                            textarea.value += (finalTranscript ? ' ' : '') + interimTranscript;
+                        }
+
+                        textarea.style.height = 'auto';
+                        textarea.style.height = Math.min(textarea.scrollHeight, 400) + 'px';
+
+                        if (textarea.scrollHeight > 400) {
+                            textarea.style.overflowY = 'auto';
+                        }
+                    };
+
+                    recognition.onerror = function(event) {
+                        console.error('Speech recognition error:', event.error);
+                        if (event.error === 'no-speech') {
+                            try {
+                                recognition.start();
+                            } catch (e) {
+                                console.error('Error restarting recognition:', e);
+                            }
+                        } else {
+                            stopRecording();
+                        }
+                    };
+                } else {
+                    console.log('Speech recognition not supported');
+                    document.getElementById('micButton').style.display = 'none';
+                }
             }
 
-            document.getElementById('setup').style.display = 'none';
-            document.getElementById('chat').style.display = 'block';
+            function toggleRecording() {
+                if (!recognition) {
+                    initializeSpeechRecognition();
+                }
 
-            conversationHistory = [];
-            await generateHostQuestion(topic, true);
-        }
+                if (isRecording) {
+                    stopRecording();
+                } else {
+                    startRecording();
+                }
+            }
 
-        async function generateHostQuestion(input, isFirst = false) {
-            const apiKey = document.getElementById('apiKey').value;
-            const guestName = document.getElementById('guestName').value;
-            const topic = document.getElementById('topic').value;
-            document.getElementById('typing-indicator').style.display = 'block';
+            function startRecording() {
+                try {
+                    isRecording = true;
+                    finalTranscript = document.getElementById('userResponse').value || '';
+                    recognition.start();
+                } catch (e) {
+                    console.error('Error starting recognition:', e);
+                }
+            }
 
-            let prompt;
-            if (isFirst) {
-                prompt = `You are a charismatic podcast host known for your engaging and natural conversation style. Your name is Sam. You're starting a new episode with guest ${guestName} about "${topic}".
+            function stopRecording() {
+                try {
+                    isRecording = false;
+                    recognition.stop();
+                    const textarea = document.getElementById('userResponse');
+                    if (!textarea.value.endsWith(finalTranscript)) {
+                        textarea.value = finalTranscript;
+                    }
+                } catch (e) {
+                    console.error('Error stopping recognition:', e);
+                }
+            }
 
-                Give a warm welcome using the guest's name (${guestName}), briefly introduce the topic, and ask your first question. Your response should:
-                1. Warmly welcome ${guestName} by name
-                2. Include a brief personal anecdote or observation about the topic
-                3. Build up to your question naturally
-                4. Make ${guestName} feel comfortable and eager to share
+            async function startPodcast() {
+                const apiKey = document.getElementById('apiKey').value;
+                const topic = document.getElementById('topic').value;
+                const guestName = document.getElementById('guestName').value;
+                const guestDesc = document.getElementById('guestDesc').value;
+
+                if (!apiKey || !topic || !guestName || !guestDesc) {
+                    alert('Please fill in all fields (API key, name, description, and topic)');
+                    return;
+                }
+
+                document.getElementById('setup').style.display = 'none';
+                document.getElementById('chat').style.display = 'block';
+
+                conversationHistory = [];
+                await generateHostQuestion(topic, true);
+            }
+
+            async function generateHostQuestion(input, isFirst = false) {
+                const apiKey = document.getElementById('apiKey').value;
+                const guestName = document.getElementById('guestName').value;
+                const topic = document.getElementById('topic').value;
+                const guestDesc = document.getElementById('guestDesc').value;
+                document.getElementById('typing-indicator').style.display = 'block';
+
+                let prompt;
+                if (isFirst) {
+                    prompt = `You are a charismatic podcast host known for your engaging and natural conversation style. Your name is Sam. 
+                You're starting a new episode with guest ${guestName}, who is ${guestDesc}. 
+                The topic is "${topic}".
+
+                Give a warm welcome that:
+                1. Warmly welcomes ${guestName} by name
+                2. References their background or expertise (${guestDesc}) in a natural way
+                3. Connects their experience to the topic of discussion
+                4. Builds up to your first question naturally
+                5. Makes ${guestName} feel comfortable and eager to share
 
                 Example flow:
                 - Warm personal welcome using their name
-                - Brief personal connection to topic
-                - Natural lead-in to question
-                - Open-ended question that invites detailed response
-
-                Use their name (${guestName}) naturally 2-3 times in your response, as a real host would.
+                - Natural mention of their background/expertise
+                - Connection to today's topic
+                - Open-ended question that bridges their experience with the topic
+                
+                Use their name naturally 2-3 times in your response, and reference aspects of their background that are relevant to the discussion.
                 Keep your total response to about what someone would say in 1-2 minutes of natural speech.`;
-            } else {
-                const context = conversationHistory.map(msg =>
-                    `${msg.role === 'host' ? 'Sam' : guestName}: ${msg.content}`
-                ).join('\n');
+                } else {
+                    const context = conversationHistory.map(msg =>
+                        `${msg.role === 'host' ? 'Host' : guestName}: ${msg.content}`
+                    ).join('\n');
 
-                prompt = `You are a charismatic podcast host having a conversation with ${guestName} about ${topic}. 
+                    prompt = `You are a charismatic podcast host having a conversation with ${guestName} (who is ${guestDesc}) about ${topic}. 
                 Here's the conversation so far:
 
                 ${context}
 
                 Respond to what ${guestName} just said before asking your next question. Your response should:
                 1. Show you actively listened by specifically acknowledging points they made
-                2. Share a brief related thought or experience that connects to what they said
-                3. Naturally transition to your next question
-                4. Ask something that digs deeper into their perspective
+                2. Connect their response to their background when relevant (${guestDesc})
+                3. Share a brief related thought or experience that builds on their expertise
+                4. Ask a follow-up question that leverages their unique perspective
 
                 Structure your response like a natural 1-2 minute speaking turn:
                 - Brief acknowledgment using their name
-                - Quick personal connection or observation
+                - Connection to their expertise when relevant
                 - Natural transition
                 - Thoughtful follow-up question
 
                 Use conversational language including:
                 - Their name (${guestName}) naturally once or twice
+                - References to their background when relevant
                 - Filler words (you know, well, actually)
                 - Verbal processing (that's really interesting, it makes me think of)
                 - Personal connections (reminds me of, I've found that)
                 - Natural transitions (and that brings up something I've been curious about)
 
-                Maintain a warm, engaging tone throughout.`;
+                Maintain a warm, engaging tone throughout and frame questions in the context of their expertise.`;
+                }
+
+                try {
+                    const response = await fetch('https://api.anthropic.com/v1/messages', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-api-key': apiKey,
+                            'anthropic-version': '2023-06-01',
+                            'anthropic-beta': 'messages-2023-12-15',
+                            'anthropic-dangerous-direct-browser-access': 'true'
+                        },
+                        body: JSON.stringify({
+                            model: 'claude-3-sonnet-20240229',
+                            max_tokens: 1024,
+                            system: `You are a charismatic podcast host interviewing ${guestName} (${guestDesc}) about ${topic}. Keep responses conversational and engaging, using their name naturally and referencing their background appropriately throughout the conversation.`,
+                            messages: [{
+                                role: 'user',
+                                content: prompt
+                            }]
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (!data.content || !data.content[0] || !data.content[0].text) {
+                        throw new Error('Unexpected API response structure');
+                    }
+
+                    const question = data.content[0].text;
+
+                    conversationHistory.push({
+                        role: 'host',
+                        content: question
+                    });
+                    updateConversationDisplay();
+
+                    document.getElementById('typing-indicator').style.display = 'none';
+                    document.getElementById('userResponse').value = '';
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert(`Error generating question: ${error.message}`);
+                    document.getElementById('typing-indicator').style.display = 'none';
+                }
             }
 
-            try {
-                const response = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': apiKey,
-                        'anthropic-version': '2023-06-01',
-                        'anthropic-beta': 'messages-2023-12-15',
-                        'anthropic-dangerous-direct-browser-access': 'true'
-                    },
-                    body: JSON.stringify({
-                        model: 'claude-3-sonnet-20240229',
-                        max_tokens: 1024,
-                        system: `You are a charismatic podcast host interviewing ${guestName} about ${topic}. Keep responses conversational and engaging, using their name naturally throughout the conversation.`,
-                        messages: [{
-                            role: 'user',
-                            content: prompt
-                        }]
-                    })
-                });
+            async function sendResponse() {
+                const response = document.getElementById('userResponse').value.trim();
+                if (!response) return;
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                if (isRecording) {
+                    stopRecording();
                 }
-
-                const data = await response.json();
-
-                if (!data.content || !data.content[0] || !data.content[0].text) {
-                    throw new Error('Unexpected API response structure');
-                }
-
-                const question = data.content[0].text;
 
                 conversationHistory.push({
-                    role: 'host',
-                    content: question
+                    role: 'guest',
+                    content: response
                 });
                 updateConversationDisplay();
 
-                document.getElementById('typing-indicator').style.display = 'none';
-                document.getElementById('userResponse').value = '';
-            } catch (error) {
-                console.error('Error:', error);
-                alert(`Error generating question: ${error.message}`);
-                document.getElementById('typing-indicator').style.display = 'none';
+                await generateHostQuestion(response);
             }
-        }
 
-        async function sendResponse() {
-            const response = document.getElementById('userResponse').value.trim();
-            if (!response) return;
-
-            conversationHistory.push({
-                role: 'guest',
-                content: response
-            });
-            updateConversationDisplay();
-
-            await generateHostQuestion(response);
-        }
-
-        function updateConversationDisplay() {
-            const guestName = document.getElementById('guestName').value;
-            const conversationDiv = document.getElementById('conversation');
-            conversationDiv.innerHTML = conversationHistory.map(msg => `
+            function updateConversationDisplay() {
+                const guestName = document.getElementById('guestName').value;
+                const conversationDiv = document.getElementById('conversation');
+                conversationDiv.innerHTML = conversationHistory.map(msg => `
                 <div class="message ${msg.role === 'host' ? 'host' : 'user'}">
                     <div class="avatar"></div>
                     <div class="message-content">
@@ -551,34 +698,33 @@
                 </div>
             `).join('');
 
-            conversationDiv.scrollTop = conversationDiv.scrollHeight;
-        }
+                conversationDiv.scrollTop = conversationDiv.scrollHeight;
+            }
 
-        function endSession() {
-            if (confirm('Ready to end this recording session?')) {
-                // Create a new session div
-                sessionCount++;
-                const sessionDiv = document.createElement('div');
-                sessionDiv.className = 'session';
+            function endSession() {
+                if (confirm('Ending Podcast Conversation')) {
+                    sessionCount++;
+                    const sessionDiv = document.createElement('div');
+                    sessionDiv.className = 'session';
 
-                // Add session header with topic and timestamp
-                const header = document.createElement('div');
-                header.className = 'session-header';
-                const topic = document.getElementById('topic').value;
-                const guestName = document.getElementById('guestName').value;
-                const timestamp = new Date().toLocaleString();
-                header.innerHTML = `
+                    const header = document.createElement('div');
+                    header.className = 'session-header';
+                    const topic = document.getElementById('topic').value;
+                    const guestName = document.getElementById('guestName').value;
+                    const guestDesc = document.getElementById('guestDesc').value;
+                    const timestamp = new Date().toLocaleString();
+                    header.innerHTML = `
                     <div>
                         <span class="session-topic">Episode: ${topic}</span><br>
-                        <span class="guest-name">Guest: ${guestName}</span>
+                        <span class="guest-name">Guest: ${guestName}</span><br>
+                        <span class="guest-desc">${guestDesc}</span>
                     </div>
                     <div class="session-info">${timestamp}</div>
                 `;
-                sessionDiv.appendChild(header);
+                    sessionDiv.appendChild(header);
 
-                // Add conversation content
-                const content = document.createElement('div');
-                content.innerHTML = conversationHistory.map(msg => `
+                    const content = document.createElement('div');
+                    content.innerHTML = conversationHistory.map(msg => `
                     <div class="message ${msg.role === 'host' ? 'host' : 'user'}">
                         <div class="avatar"></div>
                         <div class="message-content">
@@ -591,126 +737,31 @@
                         </div>
                     </div>
                 `).join('');
-                sessionDiv.appendChild(content);
+                    sessionDiv.appendChild(content);
 
-                // Add the session to history
-                document.getElementById('history').insertBefore(sessionDiv, document.getElementById('history').firstChild);
+                    document.getElementById('history').insertBefore(sessionDiv, document.getElementById('history').firstChild);
 
-                // Reset for new session
-                document.getElementById('setup').style.display = 'block';
-                document.getElementById('chat').style.display = 'none';
-                document.getElementById('conversation').innerHTML = '';
-                document.getElementById('topic').value = '';
-                document.getElementById('guestName').value = '';
-                conversationHistory = [];
-            }
-        }
-
-        // Allow pressing Enter in the response textarea to send
-        document.getElementById('userResponse').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendResponse();
-            }
-        });
-        // Speech recognition setup
-        let recognition = null;
-        let isRecording = false;
-
-        // Initialize speech recognition
-        function initializeSpeechRecognition() {
-            if ('webkitSpeechRecognition' in window) {
-                recognition = new webkitSpeechRecognition();
-                recognition.continuous = true;
-                recognition.interimResults = true;
-
-                recognition.onstart = function() {
-                    isRecording = true;
-                    document.getElementById('micButton').classList.add('recording');
-                    document.getElementById('speechStatus').classList.add('visible');
-                };
-
-                recognition.onend = function() {
-                    isRecording = false;
-                    document.getElementById('micButton').classList.remove('recording');
-                    document.getElementById('speechStatus').classList.remove('visible');
-                };
-
-                recognition.onresult = function(event) {
-                    let finalTranscript = '';
-                    let interimTranscript = '';
-
-                    for (let i = event.resultIndex; i < event.results.length; i++) {
-                        const transcript = event.results[i][0].transcript;
-                        if (event.results[i].isFinal) {
-                            finalTranscript += transcript;
-                        } else {
-                            interimTranscript += transcript;
-                        }
-                    }
-
-                    // Update textarea with transcribed text
-                    const currentText = document.getElementById('userResponse').value;
-                    document.getElementById('userResponse').value =
-                        finalTranscript || interimTranscript;
-                };
-
-                recognition.onerror = function(event) {
-                    console.error('Speech recognition error:', event.error);
-                    stopRecording();
-                };
-
-            } else {
-                console.log('Speech recognition not supported');
-                document.getElementById('micButton').style.display = 'none';
-            }
-        }
-
-        // Toggle recording
-        function toggleRecording() {
-            if (!recognition) {
-                initializeSpeechRecognition();
+                    document.getElementById('setup').style.display = 'block';
+                    document.getElementById('chat').style.display = 'none';
+                    document.getElementById('conversation').innerHTML = '';
+                    document.getElementById('topic').value = '';
+                    document.getElementById('guestName').value = '';
+                    document.getElementById('guestDesc').value = '';
+                    conversationHistory = [];
+                }
             }
 
-            if (isRecording) {
-                stopRecording();
-            } else {
-                startRecording();
-            }
-        }
+            // Initialize speech recognition and add event listeners
+            document.addEventListener('DOMContentLoaded', initializeSpeechRecognition);
+            document.getElementById('micButton').addEventListener('click', toggleRecording);
+            document.getElementById('userResponse').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendResponse();
+                }
+            });
 
-        function startRecording() {
-            try {
-                recognition.start();
-            } catch (e) {
-                console.error('Error starting recognition:', e);
-            }
-        }
-
-        function stopRecording() {
-            try {
-                recognition.stop();
-            } catch (e) {
-                console.error('Error stopping recognition:', e);
-            }
-        }
-
-        // Add click handler for mic button
-        document.getElementById('micButton').addEventListener('click', toggleRecording);
-
-        // Add handler for ending speech recognition when sending response
-        const originalSendResponse = sendResponse;
-        sendResponse = function() {
-            if (isRecording) {
-                stopRecording();
-            }
-            originalSendResponse();
-        };
-
-        // Initialize speech recognition when the page loads
-        document.addEventListener('DOMContentLoaded', initializeSpeechRecognition);
-
-    </script>
+        </script>
 </body>
 
 </html>
