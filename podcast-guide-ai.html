@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- Previous head and CSS styles remain exactly the same until the script section -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Podcast Guide AI</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #f8fafc;
+            --card-bg: #fff;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui;
+        }
+
+        body {
+            font-family: system-ui;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+            min-height: 100vh;
+            background: #edeeff;
+            background-image: url("bg.svg");
+            background-repeat: repeat;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .wand {
+            width: 32px;
+            margin-right: 8px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+        }
+
+        h1 {
+
+            color: #000;
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .radio-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .radio-option input[type="radio"] {
+            display: none;
+        }
+
+        .radio-option label {
+            display: block;
+            padding: 1rem;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .radio-option input[type="radio"]:checked+label {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .option-title {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .option-description {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="password"],
+        textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        input[type="password"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 20%;
+            margin-left: 40%;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            background: var(--text-secondary);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: inline-block;
+            margin-left: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .error {
+            color: #dc2626;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: #fef2f2;
+            border-radius: var(--radius);
+            border: 1px solid #fecaca;
+        }
+
+        #output {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: var(--bg);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        #output h1 {
+            font-size: 1.75rem;
+            color: var(--primary);
+            margin: 2rem 0 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        #output h2 {
+            font-size: 1.5rem;
+            color: var(--text);
+            margin: 2rem 0 1rem;
+        }
+
+        #output p {
+            margin: 1.25rem 0;
+            line-height: 1.8;
+        }
+
+        #output ul,
+        #output ol {
+            margin: 1.5rem 0;
+            padding-left: 1.5rem;
+        }
+
+        #output li {
+            margin: 1.25rem 0;
+            line-height: 1.8;
+            padding-left: 0.5rem;
+        }
+
+        #output .host {
+            background: var(--card-bg);
+            border-left: 4px solid var(--primary);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 var(--radius) var(--radius) 0;
+            box-shadow: var(--shadow);
+        }
+
+        #output .response-space {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px dashed var(--primary);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            text-align: center;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        #output .section {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        #output .tag {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        #output .highlight {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+            line-height: 34px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes dots {
+
+            0%,
+            20% {
+                content: '';
+            }
+
+            40% {
+                content: '.';
+            }
+
+            60% {
+                content: '..';
+            }
+
+            80% {
+                content: '...';
+            }
+
+            100% {
+                content: '';
+            }
+        }
+
+        .loading::after {
+            content: '';
+            animation: dots 1.5s infinite;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .radio-group {
+                flex-direction: column;
+            }
+
+            .radio-option {
+                width: 100%;
+            }
+        }
+
+        .project-description {
+            margin-left: 10%;
+            margin-right: 10%;
+            text-align: center;
+            margin-bottom: 5%;
+            background-color: #ececec;
+            padding: 2%;
+            border-radius: 12px;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <h1><img src="wand.svg" class="wand"> Podcast Guide AI</h1>
+            <p class="project-description">Pick a topic and use the AI guide to frame your thoughts and structure your conversation. From helpful prompts on what to say to guidance on how to engage with your audience based on the topic.</p>
+            <div class="input-group">
+                <label for="apiKeyInput">API Key</label>
+                <input type="password" id="apiKeyInput" placeholder="Enter your Claude API key" />
+            </div>
+
+            <div class="input-group">
+                <label for="topicInput">Podcast Topic</label>
+                <textarea id="topicInput" rows="3" placeholder="What would you like to talk about?"></textarea>
+            </div>
+
+            <button id="generateBtn" onclick="generateFramework()">Generate</button>
+            <div id="loadingIndicator" class="loading hidden">Generating</div>
+            <div id="error" class="error hidden"></div>
+            <div id="output" class="hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            headerIds: false,
+            mangle: false
+        });
+
+        function customFormat(text) {
+            return text
+                .replace(/<tag>(.*?)<\/tag>/g, '<span class="tag">$1</span>')
+                .replace(/^## (.*$)/gm, '<div class="section">\n## $1')
+                .replace(/^(?=##)/gm, '</div>\n')
+                .replace(/\[(.*?)\]/g, '<span class="highlight">$1</span>');
+        }
+
+        async function generateFramework() {
+            const apiKey = document.getElementById('apiKeyInput').value.trim();
+            const topic = document.getElementById('topicInput').value.trim();
+            const errorDiv = document.getElementById('error');
+            const outputDiv = document.getElementById('output');
+            const generateBtn = document.getElementById('generateBtn');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+
+            // Reset all states at start
+            errorDiv.classList.add('hidden');
+            outputDiv.classList.add('hidden');
+            loadingIndicator.classList.add('hidden');
+
+            if (!apiKey || !topic) {
+                errorDiv.textContent = 'Please enter both an API key and a topic.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                // Show loading and disable button
+                generateBtn.disabled = true;
+                loadingIndicator.classList.remove('hidden');
+
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': apiKey,
+                        'anthropic-version': '2023-06-01',
+                        'anthropic-dangerous-headers-override': '*',
+                        'anthropic-dangerous-system-mode': 'enter',
+                        'anthropic-dangerous-direct-browser-access': 'true'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-3-sonnet-20240229',
+                        max_tokens: 1024,
+                        messages: [{
+                            role: 'user',
+                            content: `Create a comprehensive framework to help structure a solo podcast episode about "${topic}". 
+Focus on storytelling structure and presentation flow, not the content itself. But don't hesitate to thrown in a few examples of questions or statements you would make as a host if this were actually a Podcast.
+
+# Episode Framework
+
+<tag>Opening Strategy (First 3-5 minutes)</tag>
+• [Hook Moment] Where to place your attention-grabbing statement
+• [Context Setting] How to establish relevance
+• [Episode Promise] When to outline value for listeners
+• [Energy Level] Where to set your initial tone
+
+<tag>Story Architecture</tag>
+• [Narrative Arc] How to structure your main points
+• [Peak Moments] Where to place your strongest insights
+• [Personal Touch] When to weave in your experiences
+• [Pacing Guide] How to vary your delivery speed
+
+<tag>Engagement Design</tag>
+• [Connection Points] When to directly address your audience
+• [Question Placement] Where to pose thought-provoking questions
+• [Reflection Spaces] When to pause for impact
+• [Energy Shifts] How to maintain listener interest
+
+<tag>Transition Framework</tag>
+• [Bridge Phrases] How to connect different segments
+• [Topic Evolution] Where to shift between ideas
+• [Callback Moments] When to reference earlier points
+• [Flow Markers] How to maintain smooth progression
+
+<tag>Dynamic Elements</tag>
+• [Emphasis Points] Where to add vocal variety
+• [Story Spots] When to include anecdotes
+• [Example Zones] How to illustrate key points
+• [Analogy Moments] Where to add comparisons
+
+<tag>Audience Journey</tag>
+• [Engagement Triggers] When to prompt listener thoughts
+• [Participation Cues] How to encourage interaction
+• [Value Markers] Where to highlight key takeaways
+• [Application Points] When to suggest practical uses
+
+<tag>Closing Structure (Last 2-3 minutes)</tag>
+• [Summary Approach] How to recap key points
+• [Action Framing] When to present next steps
+• [Future Hook] Where to tease next content
+• [Signature Close] How to end memorably
+
+Remember: This framework guides HOW to structure and deliver your content for maximum impact.`
+                        }],
+                        system: "You are an expert podcast producer who helps creators structure their episodes for maximum impact. Focus on storytelling flow and presentation structure, not content."
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+
+                const data = await response.json();
+
+                // Hide loading before showing results
+                loadingIndicator.classList.add('hidden');
+
+                // Process and show results
+                outputDiv.innerHTML = marked.parse(customFormat(data.content[0].text));
+                outputDiv.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error:', error);
+                // Hide loading before showing error
+                loadingIndicator.classList.add('hidden');
+                // Show error message
+                errorDiv.textContent = `Error: ${error.message}`;
+                errorDiv.classList.remove('hidden');
+            } finally {
+                // Re-enable button
+                generateBtn.disabled = false;
+            }
+        }
+
+    </script>
+</body>
+
+</html>
