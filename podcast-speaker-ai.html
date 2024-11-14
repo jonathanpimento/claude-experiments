@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Podcast Speaker AI</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+            --error-color: #ef4444;
+            --success-color: #10b981;
+        }
+
+        * {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            color: var(--text-color);
+            line-height: 1.5;
+            padding: 2rem;
+            background: #edeeff;
+            background-image: url("bg.svg");
+            background-repeat: repeat;
+            margin: 0px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 2rem;
+        }
+
+        h1 {
+            color: var(--text-color);
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        h3 {
+            color: var(--text-color);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 1.5rem 0 1rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        input[type="password"],
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.15s ease;
+            background-color: #fff;
+        }
+
+        input[type="password"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        textarea {
+            height: 200px;
+            resize: vertical;
+        }
+
+        .file-upload {
+            margin: 1rem 0;
+        }
+
+        input[type="file"] {
+            display: block;
+            margin: 0.5rem 0;
+            font-size: 0.875rem;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:disabled {
+            background-color: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        .file-info {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+        }
+
+        .error {
+            color: var(--error-color);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            background-color: #fff;
+        }
+
+        .loading {
+            text-align: center;
+            color: #64748b;
+            margin: 1rem 0;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .loading::after {
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #ddd;
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spinner 0.6s linear infinite;
+        }
+
+        @keyframes spinner {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .result {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            background-color: #edeeff;
+            white-space: pre-wrap;
+        }
+
+        .result:empty {
+            display: none;
+        }
+
+        .section {
+            background-color: white;
+        }
+
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .project-description {
+            margin-left: 10%;
+            margin-right: 10%;
+            text-align: center;
+            margin-bottom: 5%;
+            background-color: #ececec;
+            padding: 2%;
+            border-radius: 12px;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1> <img src="wand.svg" class="wand"> Podcast Speaker AI</h1>
+        <p class="project-description">Generate a summary, speaker highlights, chapters, conversation flows, category tags and several other insights from your Podcast recording in seconds.</p>
+
+
+        <div class="section">
+            <div class="input-group">
+                <input type="password" id="apiKeyInput" placeholder="Enter your Claude API key">
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Speaker Transcript</div>
+            <div class="file-upload">
+                <input type="file" id="fileInput" accept=".txt,.pdf">
+                <div id="fileInfo" class="file-info"></div>
+            </div>
+
+            <div class="input-group">
+                <textarea id="transcriptInput" placeholder="Paste your transcript here..."></textarea>
+            </div>
+
+            <button onclick="analyzeTranscript()" id="analyzeButton">Results</button>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">Analyzing transcript...</div>
+        <div id="error" class="error"></div>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        // [Previous JavaScript code remains exactly the same]
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        const fileInput = document.getElementById('fileInput');
+        const transcriptInput = document.getElementById('transcriptInput');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const result = document.getElementById('result');
+        const analyzeButton = document.getElementById('analyzeButton');
+        const fileInfo = document.getElementById('fileInfo');
+
+        async function readPDFFile(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({
+                    data: arrayBuffer
+                }).promise;
+                let fullText = '';
+
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    fullText += pageText + '\n';
+                }
+
+                return fullText;
+            } catch (err) {
+                throw new Error('Error reading PDF: ' + err.message);
+            }
+        }
+
+        fileInput.addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            fileInfo.textContent = `Processing: ${file.name}`;
+            error.textContent = '';
+
+            try {
+                if (file.type === 'application/pdf') {
+                    const text = await readPDFFile(file);
+                    transcriptInput.value = text;
+                    fileInfo.textContent = `Loaded PDF: ${file.name} (${text.length} characters)`;
+                } else {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        transcriptInput.value = e.target.result;
+                        fileInfo.textContent = `Loaded text file: ${file.name} (${e.target.result.length} characters)`;
+                    };
+                    reader.readAsText(file);
+                }
+            } catch (err) {
+                error.textContent = err.message;
+                fileInfo.textContent = '';
+            }
+        });
+
+        async function analyzeTranscript() {
+            const apiKey = document.getElementById('apiKeyInput').value;
+            const transcript = transcriptInput.value.trim();
+
+            if (!apiKey) {
+                error.textContent = "Please enter your Claude API key";
+                return;
+            }
+
+            if (!transcript) {
+                error.textContent = "Please enter or upload a transcript";
+                return;
+            }
+
+            loading.style.display = 'block';
+            error.textContent = '';
+            result.innerHTML = '';
+            analyzeButton.disabled = true;
+
+            try {
+                const response = await axios.post(
+                    'https://api.anthropic.com/v1/messages', {
+                        model: "claude-3-sonnet-20240229",
+                        max_tokens: 1024,
+                        messages: [{
+                            role: "user",
+                            content: `As an expert in podcast performance analysis, please analyze this transcript and provide a detailed analysis for each speaker. Structure your response as follows for each speaker:
+
+Speaker Analysis: [Speaker Name]
+
+Overall assessment:
+[Provide a concise assessment of their overall speaking performance]
+
+Key Metrics:
+Authenticity & Credibility: [Score 0-100]
+Emotional Intelligence: [Score 0-100]
+Structure & Clarity: [Score 0-100]
+Dynamic Delivery: [Score 0-100]
+Audience Engagement: [Score 0-100]
+Storytelling Ability: [Score 0-100]
+
+Strengths:
+[List key strengths, one per line with dash bullets]
+
+Areas for improvement:
+[List areas for improvement, one per line with dash bullets]
+
+Podcast-specific recommendations:
+[List actionable recommendations, one per line with dash bullets]
+
+${transcript}`
+                        }]
+                    }, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-api-key': apiKey,
+                            'anthropic-version': '2023-06-01',
+                            'anthropic-dangerous-direct-browser-access': 'true'
+                        }
+                    }
+                );
+
+                const analysis = response.data.content[0].text;
+                result.innerHTML = analysis.replace(/\n/g, '<br>');
+            } catch (err) {
+                error.textContent = `Error: ${err.response?.data?.error?.message || err.message}`;
+                console.error('API Error:', err);
+            } finally {
+                loading.style.display = 'none';
+                analyzeButton.disabled = false;
+            }
+        }
+
+    </script>
+</body>
+
+</html>
